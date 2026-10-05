@@ -1,0 +1,40 @@
+{
+  "name": "win95.css",
+  "version": "0.1.0",
+  "description": "A Windows 95 interface kit for the web: windows, taskbar, Start menu and every classic control in one stylesheet, plus an optional tiny window manager.",
+  "keywords": [
+    "css",
+    "windows-95",
+    "win95",
+    "retro",
+    "ui-kit",
+    "design-system",
+    "90s"
+  ],
+  "license": "MIT",
+  "author": "Con Cirillo <howdy@concirillo.com> (https://concirillo.com)",
+  "homepage": "https://github.com/concirillo-41/win95.css",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/concirillo-41/win95.css.git"
+  },
+  "style": "dist/win95.css",
+  "main": "dist/win95.js",
+  "unpkg": "dist/win95.css",
+  "jsdelivr": "dist/win95.css",
+  "files": [
+    "dist",
+    "src",
+    "fonts",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "check": "node tools/shoot.mjs"
+  },
+  "devDependencies": {
+    "opentype.js": "^1.3.4",
+    "wawoff2": "^2.0.1"
+  }
+}

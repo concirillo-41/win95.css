@@ -1,0 +1,902 @@
+/*
+ * win95.css — a Windows 95 interface kit for the web.
+ * This is the hand-written core. dist/win95.css prepends the generated fonts and icons.
+ * Put class="w95" on <body> (or any wrapper) to opt in.
+ *
+ * Layout concept: a teal desktop filling the viewport, floating windows above it,
+ * a 28px taskbar pinned to the bottom. Phones get maximized windows.
+ */
+
+:root {
+  /* System colours, straight from the Win95 default scheme */
+  --w95-desktop: #008080;
+  --w95-face: #c0c0c0;
+  --w95-light: #dfdfdf;
+  --w95-hilight: #ffffff;
+  --w95-shadow: #808080;
+  --w95-dkshadow: #0a0a0a;
+  --w95-window: #ffffff;
+  --w95-text: #000000;
+  --w95-gray-text: #808080;
+  --w95-title: #000080;
+  --w95-title-text: #ffffff;
+  --w95-title-inactive: #808080;
+  --w95-title-inactive-text: #c0c0c0;
+  --w95-select: #000080;
+  --w95-select-text: #ffffff;
+  --w95-tooltip: #ffffe1;
+  --w95-link: #0000ff;
+  --w95-visited: #800080;
+
+  /* Type */
+  --w95-font: "W95 Sans", "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Geneva, sans-serif;
+  --w95-mono: "Fixedsys", "Courier New", Courier, ui-monospace, monospace;
+  --w95-serif: "Times New Roman", Times, serif;
+  --w95-size: 11px;
+
+  /* Metrics */
+  --w95-taskbar-h: 28px;
+
+  /* Bevels: the whole look lives in these four lines */
+  --w95-raised: inset -1px -1px var(--w95-dkshadow), inset 1px 1px var(--w95-hilight),
+    inset -2px -2px var(--w95-shadow), inset 2px 2px var(--w95-light);
+  --w95-window-edge: inset -1px -1px var(--w95-dkshadow), inset 1px 1px var(--w95-light),
+    inset -2px -2px var(--w95-shadow), inset 2px 2px var(--w95-hilight);
+  --w95-pressed: inset -1px -1px var(--w95-hilight), inset 1px 1px var(--w95-dkshadow),
+    inset -2px -2px var(--w95-light), inset 2px 2px var(--w95-shadow);
+  --w95-sunken: inset -1px -1px var(--w95-hilight), inset 1px 1px var(--w95-shadow),
+    inset -2px -2px var(--w95-light), inset 2px 2px var(--w95-dkshadow);
+  --w95-shallow: inset -1px -1px var(--w95-hilight), inset 1px 1px var(--w95-shadow);
+  --w95-dither: conic-gradient(var(--w95-hilight) 25%, var(--w95-face) 0 50%, var(--w95-hilight) 0 75%, var(--w95-face) 0);
+
+  color-scheme: light;
+}
+
+@media (pointer: coarse), (max-width: 640px) {
+  :root { --w95-size: 13px; --w95-taskbar-h: 36px; }
+}
+
+/* ---------- Base ---------- */
+
+html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow: hidden; }
+
+.w95 {
+  font-family: var(--w95-font);
+  font-size: var(--w95-size);
+  line-height: 1.35;
+  color: var(--w95-text);
+  background: var(--w95-desktop);
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
+  margin: 0;
+}
+
+.w95 *, .w95 *::before, .w95 *::after { box-sizing: border-box; }
+.w95 [hidden], .w95[hidden] { display: none !important; }
+.w95 :where(h1, h2, h3, h4, p, ul, ol, figure) { margin: 0; }
+.w95 :where(h1, h2, h3, h4) { font-weight: 700; line-height: 1.2; text-wrap: balance; }
+.w95 :where(h1) { font-size: 2em; }
+.w95 :where(h2) { font-size: 1.5em; }
+.w95 :where(h3) { font-size: 1.18em; }
+.w95 :where(h4) { font-size: 1em; }
+.w95 :where(a) { color: var(--w95-link); }
+.w95 :where(a:visited) { color: var(--w95-visited); }
+.w95 :where(hr) { border: 0; height: 2px; box-shadow: var(--w95-shallow); margin: 8px 0; }
+.w95 :where(code, kbd, pre, samp) { font-family: var(--w95-mono); font-size: 1em; }
+.w95 ::selection { background: var(--w95-select); color: var(--w95-select-text); }
+
+/* The 1-pixel dotted focus rectangle */
+.w95 :focus { outline: none; }
+.w95 :focus-visible { outline: 1px dotted var(--w95-text); outline-offset: -4px; }
+
+/* ---------- Pixel icons (classes come from win95-assets.css) ---------- */
+
+[class*="w95-ico-"] {
+  display: inline-block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  vertical-align: middle;
+}
+.w95-ico-32 { width: 32px; height: 32px; }
+
+/* ---------- Buttons ---------- */
+
+.w95 :where(button, .w95-btn, input[type="button"], input[type="submit"], input[type="reset"]) {
+  font: inherit;
+  color: var(--w95-text);
+  background: var(--w95-face);
+  border: 0;
+  border-radius: 0;
+  box-shadow: var(--w95-raised);
+  min-width: 75px;
+  min-height: 23px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.w95 :where(button, .w95-btn):not(:disabled):active,
+.w95 :where(button, .w95-btn).is-active {
+  box-shadow: var(--w95-pressed);
+  padding: 2px 11px 0 13px;
+}
+.w95 :where(button, .w95-btn).is-active { background-image: var(--w95-dither); background-size: 2px 2px; }
+.w95 :where(button, .w95-btn):focus-visible { outline-offset: -4px; }
+/* Default button: the extra black frame */
+.w95 :where(button, .w95-btn).is-default {
+  box-shadow: inset 0 0 0 1px var(--w95-dkshadow), inset -2px -2px var(--w95-dkshadow), inset 2px 2px var(--w95-hilight),
+    inset -3px -3px var(--w95-shadow), inset 3px 3px var(--w95-light);
+}
+.w95 :where(button, .w95-btn):disabled,
+.w95 :where(button, .w95-btn)[aria-disabled="true"] {
+  color: var(--w95-gray-text);
+  text-shadow: 1px 1px 0 var(--w95-hilight);
+  cursor: default;
+}
+.w95-btn-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
+.w95-btn-row.is-end { justify-content: flex-end; }
+.w95 .w95-btn-icon { min-width: 0; padding: 0 4px; }
+
+/* ---------- Windows ---------- */
+
+.w95-window {
+  /* Re-read the type tokens so a window can override them locally */
+  font-family: var(--w95-font);
+  font-size: var(--w95-size);
+  background: var(--w95-face);
+  box-shadow: var(--w95-window-edge);
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.w95-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  padding: 0 2px 0 3px;
+  background: var(--w95-title);
+  color: var(--w95-title-text);
+  font-weight: 700;
+  flex: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.w95-window.is-inactive .w95-titlebar { background: var(--w95-title-inactive); color: var(--w95-title-inactive-text); }
+.w95-title {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w95-controls { display: flex; flex: none; }
+.w95 .w95-controls button {
+  min-width: 0;
+  width: 16px;
+  height: 14px;
+  min-height: 0;
+  padding: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.w95 .w95-controls button:not(:disabled):active { padding: 0; background-position: calc(50% + 1px) calc(50% + 1px); }
+.w95-controls [data-action="close"] { margin-left: 2px; background-image: var(--w95-g-close); }
+.w95-controls [data-action="minimize"] { background-image: var(--w95-g-min); background-position: 4px 9px !important; }
+.w95-controls [data-action="maximize"] { background-image: var(--w95-g-max); }
+.w95-window.is-maximized .w95-controls [data-action="maximize"] { background-image: var(--w95-g-restore); }
+
+.w95-body { padding: 8px; flex: 1; min-height: 0; overflow: auto; }
+.w95-body.is-flush { padding: 0; }
+
+/* Menu bar */
+.w95-menubar { display: flex; flex-wrap: wrap; padding: 1px 0; flex: none; position: relative; }
+.w95 .w95-menubar > li { list-style: none; position: relative; }
+.w95-menubar { margin: 0; padding-left: 0; }
+.w95 .w95-menubar > li > button {
+  min-width: 0;
+  min-height: 0;
+  height: 18px;
+  padding: 0 6px;
+  box-shadow: none;
+  background: transparent;
+  gap: 0;
+}
+.w95 .w95-menubar > li > button:hover { box-shadow: var(--w95-shallow); }
+.w95 .w95-menubar > li > button[aria-expanded="true"] { box-shadow: inset 1px 1px var(--w95-shadow), inset -1px -1px var(--w95-hilight); padding: 1px 5px 0 7px; }
+.w95-key { text-decoration: underline; text-underline-offset: 1px; }
+
+/* Drop-down & context menus */
+.w95-menu {
+  position: absolute;
+  z-index: 50;
+  top: 100%;
+  left: 0;
+  min-width: 150px;
+  margin: 0;
+  padding: 3px;
+  list-style: none;
+  background: var(--w95-face);
+  box-shadow: var(--w95-window-edge);
+}
+.w95 .w95-menu button, .w95 .w95-menu a {
+  width: 100%;
+  min-height: 20px;
+  justify-content: flex-start;
+  padding: 0 20px;
+  box-shadow: none;
+  background: transparent;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--w95-text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.w95 .w95-menu button:hover, .w95 .w95-menu button:focus-visible,
+.w95 .w95-menu a:hover, .w95 .w95-menu a:focus-visible { background: var(--w95-select); color: var(--w95-select-text); outline: none; }
+.w95 .w95-menu button:active { padding: 0 20px; box-shadow: none; }
+.w95 .w95-menu button:disabled { background: transparent; }
+.w95 .w95-menu [aria-checked="true"]::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  width: 7px;
+  height: 7px;
+  background: var(--w95-g-check) no-repeat;
+}
+.w95 .w95-menu button { position: relative; }
+.w95 .w95-menu button:hover[aria-checked="true"]::before { filter: invert(1); }
+.w95-menu kbd { margin-left: auto; padding-left: 24px; font-family: inherit; }
+.w95-menu .w95-sep, .w95-menu hr { height: 2px; margin: 3px 1px; box-shadow: var(--w95-shallow); border: 0; list-style: none; }
+
+/* Status bar */
+.w95-statusbar { display: flex; gap: 2px; margin-top: 2px; flex: none; }
+.w95-statusfield {
+  box-shadow: var(--w95-shallow);
+  padding: 2px 4px;
+  min-height: 20px;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.w95-statusfield.is-fit { flex: none; }
+
+/* Resize grip, bottom-right */
+.w95-grip {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 13px;
+  height: 13px;
+  background: var(--w95-g-grip) no-repeat right bottom;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+
+/* ---------- Form controls ---------- */
+
+.w95 :where(input[type="text"], input[type="email"], input[type="search"], input[type="url"],
+  input[type="password"], input[type="number"], input[type="tel"], input:not([type]), textarea, select) {
+  font: inherit;
+  color: var(--w95-text);
+  background-color: var(--w95-window);
+  border: 0;
+  border-radius: 0;
+  box-shadow: var(--w95-sunken);
+  padding: 3px 4px;
+  min-height: 21px;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.w95 :where(input, textarea, select):disabled { background-color: var(--w95-face); color: var(--w95-gray-text); }
+.w95 :where(input, textarea)[readonly] { background-color: var(--w95-face); }
+.w95 :where(input, textarea, select):focus-visible { outline: none; }
+.w95 :where(textarea) { resize: none; display: block; width: 100%; }
+
+.w95 :where(select) {
+  padding-right: 20px;
+  background-image: var(--w95-g-down), linear-gradient(var(--w95-face), var(--w95-face));
+  background-repeat: no-repeat;
+  background-position: right 6px center, right 2px top 2px;
+  background-size: 7px 4px, 16px calc(100% - 4px);
+  /* Drop-down button bevel */
+  box-shadow: var(--w95-sunken);
+}
+.w95 :where(select):disabled { background-image: var(--w95-g-down-off), linear-gradient(var(--w95-face), var(--w95-face)); }
+
+.w95 :where(label) { display: inline-flex; align-items: center; gap: 6px; }
+.w95-field { display: grid; gap: 3px; }
+.w95-field.is-row { grid-template-columns: max-content 1fr; align-items: center; gap: 6px; }
+
+/* Checkbox */
+.w95 :where(input[type="checkbox"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  flex: none;
+  background: var(--w95-window);
+  box-shadow: var(--w95-sunken);
+  background-repeat: no-repeat;
+  background-position: 3px 3px;
+}
+.w95 :where(input[type="checkbox"]):checked { background-image: var(--w95-g-check); }
+.w95 :where(input[type="checkbox"]):disabled { background-color: var(--w95-face); }
+.w95 :where(input[type="checkbox"]):disabled:checked { background-image: var(--w95-g-check-off); }
+.w95 :where(input[type="checkbox"]:focus-visible) + * , .w95 :where(input[type="radio"]:focus-visible) + * { outline: 1px dotted var(--w95-text); }
+
+/* Radio */
+.w95 :where(input[type="radio"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  flex: none;
+  background: var(--w95-g-radio) no-repeat;
+}
+.w95 :where(input[type="radio"]):checked { background: var(--w95-g-dot) no-repeat 4px 4px, var(--w95-g-radio) no-repeat; }
+.w95 :where(input[type="radio"]):disabled { background-image: var(--w95-g-radio-off); }
+.w95 :where(input[type="radio"]):disabled:checked { background: var(--w95-g-dot-off) no-repeat 4px 4px, var(--w95-g-radio-off) no-repeat; }
+
+/* Slider (trackbar) */
+.w95 :where(input[type="range"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 26px;
+  width: 100%;
+  margin: 0;
+}
+.w95 input[type="range"]::-webkit-slider-runnable-track { height: 4px; background: var(--w95-face); box-shadow: var(--w95-sunken); }
+.w95 input[type="range"]::-moz-range-track { height: 4px; background: var(--w95-face); box-shadow: var(--w95-sunken); border: 0; }
+.w95 input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 21px;
+  margin-top: -9px;
+  background: var(--w95-face);
+  box-shadow: var(--w95-raised);
+  border: 0;
+  border-radius: 0;
+}
+.w95 input[type="range"]::-moz-range-thumb {
+  width: 11px;
+  height: 21px;
+  background: var(--w95-face);
+  box-shadow: var(--w95-raised);
+  border: 0;
+  border-radius: 0;
+}
+
+/* Group box */
+.w95 :where(fieldset) {
+  border: 0;
+  margin: 0;
+  padding: 12px 10px 10px;
+  box-shadow: inset -1px -1px var(--w95-hilight), inset 1px 1px var(--w95-shadow),
+    inset -2px -2px var(--w95-shadow), inset 2px 2px var(--w95-hilight);
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.w95 :where(legend) { background: var(--w95-face); padding: 0 3px; margin-left: -2px; }
+
+/* ---------- Sunken panels, lists, tables ---------- */
+
+.w95-panel { background: var(--w95-window); box-shadow: var(--w95-sunken); padding: 4px; min-width: 0; }
+.w95-inset { box-shadow: var(--w95-shallow); padding: 4px 6px; }
+
+.w95-list { list-style: none; margin: 0; padding: 2px; background: var(--w95-window); box-shadow: var(--w95-sunken); overflow: auto; }
+.w95-list > li { padding: 1px 3px; display: flex; align-items: center; gap: 4px; cursor: default; }
+.w95-list > li[aria-selected="true"] { background: var(--w95-select); color: var(--w95-select-text); }
+
+.w95-table-wrap { background: var(--w95-window); box-shadow: var(--w95-sunken); padding: 2px; overflow: auto; min-width: 0; }
+.w95-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.w95-table th {
+  position: sticky;
+  top: 0;
+  background: var(--w95-face);
+  box-shadow: var(--w95-raised);
+  font-weight: 400;
+  text-align: left;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+.w95-table td { padding: 2px 6px; white-space: nowrap; vertical-align: middle; }
+.w95-table td.is-num, .w95-table th.is-num { text-align: right; }
+.w95-table tr[aria-selected="true"] td { background: var(--w95-select); color: var(--w95-select-text); }
+.w95-table td .w95-cell { display: inline-flex; align-items: center; gap: 4px; }
+
+/* Tree view, built on <details> */
+.w95-tree { background: var(--w95-window); box-shadow: var(--w95-sunken); padding: 4px 6px; overflow: auto; }
+.w95-tree ul { list-style: none; margin: 0; padding-left: 16px; position: relative; }
+.w95-tree > ul { padding-left: 0; }
+.w95-tree li { position: relative; padding-left: 2px; line-height: 18px; }
+.w95-tree ul ul li::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  border-left: 1px dotted var(--w95-shadow);
+  border-bottom: 1px dotted var(--w95-shadow);
+}
+.w95-tree ul ul li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 9px;
+  bottom: 0;
+  border-left: 1px dotted var(--w95-shadow);
+}
+.w95-tree details > summary { list-style: none; cursor: default; display: inline-flex; align-items: center; gap: 4px; }
+.w95-tree details > summary::-webkit-details-marker { display: none; }
+.w95-tree details > summary::before {
+  content: "+";
+  display: inline-grid;
+  place-items: center;
+  width: 9px;
+  height: 9px;
+  font-size: 9px;
+  line-height: 1;
+  border: 1px solid var(--w95-shadow);
+  background: var(--w95-window);
+  margin-left: -14px;
+  margin-right: 1px;
+}
+.w95-tree details[open] > summary::before { content: "\2212"; }
+.w95-tree .w95-leaf { display: inline-flex; align-items: center; gap: 4px; }
+
+/* ---------- Tabs ---------- */
+
+.w95-tabs { display: flex; flex-direction: column; min-width: 0; }
+.w95-tablist { display: flex; flex-wrap: wrap; padding-left: 2px; position: relative; z-index: 1; }
+.w95 .w95-tablist [role="tab"] {
+  min-width: 0;
+  min-height: 0;
+  height: 20px;
+  padding: 0 10px;
+  margin-right: -1px;
+  margin-top: 2px;
+  box-shadow: inset -1px 0 var(--w95-dkshadow), inset 1px 1px var(--w95-hilight), inset -2px 0 var(--w95-shadow), inset 2px 2px var(--w95-light);
+}
+.w95 .w95-tablist [role="tab"]:active { padding: 0 10px; }
+.w95 .w95-tablist [role="tab"][aria-selected="true"] {
+  height: 23px;
+  margin: -2px -2px -1px -2px;
+  padding: 0 12px;
+  position: relative;
+  z-index: 2;
+  background: var(--w95-face);
+}
+.w95-tabpanel { box-shadow: var(--w95-window-edge); padding: 12px; min-width: 0; min-height: var(--w95-tab-min, 0); }
+
+/* ---------- Progress ---------- */
+
+.w95-progress {
+  height: 22px;
+  box-shadow: var(--w95-shallow);
+  padding: 3px;
+  background: var(--w95-face);
+}
+.w95-progress > span {
+  display: block;
+  height: 100%;
+  width: var(--value, 0%);
+  /* Chunky blocks: 8px blue, 2px gap */
+  background: repeating-linear-gradient(90deg, var(--w95-select) 0 8px, transparent 8px 10px);
+  transition: width 0.25s steps(4);
+}
+
+/* ---------- Tooltip ---------- */
+
+.w95-tooltip {
+  display: inline-block;
+  background: var(--w95-tooltip);
+  color: var(--w95-text);
+  border: 1px solid var(--w95-text);
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+[data-tip] { position: relative; }
+@media (hover: hover) {
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 4px);
+    z-index: 100;
+    background: var(--w95-tooltip);
+    color: var(--w95-text);
+    border: 1px solid var(--w95-text);
+    padding: 1px 4px;
+    white-space: nowrap;
+    font-weight: 400;
+    pointer-events: none;
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Toolbar (flat buttons that pop up on hover) ---------- */
+
+.w95-toolbar { display: flex; flex-wrap: wrap; gap: 2px; padding: 2px 0 4px; align-items: center; }
+.w95 .w95-toolbar button, .w95 .w95-toolbar .w95-btn {
+  min-width: 0;
+  min-height: 0;
+  height: 22px;
+  padding: 0 4px;
+  box-shadow: none;
+  background: transparent;
+}
+.w95 .w95-toolbar :is(button, .w95-btn):not(:disabled):hover { box-shadow: var(--w95-shallow); }
+.w95 .w95-toolbar :is(button, .w95-btn):not(:disabled):active,
+.w95 .w95-toolbar :is(button, .w95-btn)[aria-pressed="true"] {
+  box-shadow: inset 1px 1px var(--w95-shadow), inset -1px -1px var(--w95-hilight);
+  padding: 1px 3px 0 5px;
+}
+.w95 .w95-toolbar [aria-pressed="true"] { background-image: var(--w95-dither); background-size: 2px 2px; }
+.w95 .w95-toolbar.is-big :is(button, .w95-btn) { height: 38px; min-width: 52px; flex-direction: column; gap: 1px; font-size: 11px; }
+.w95-toolbar .w95-sep { width: 2px; align-self: stretch; margin: 2px 3px; box-shadow: var(--w95-shallow); }
+.w95 .w95-toolbar select { min-height: 21px; }
+
+/* ---------- Large-icon folder view ---------- */
+
+.w95-iconview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 8px 4px;
+  align-content: start;
+  padding: 10px 6px;
+  background: var(--w95-window);
+  box-shadow: var(--w95-sunken);
+  overflow: auto;
+}
+.w95 .w95-iconview > :is(button, a) {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-top: 2px;
+  color: var(--w95-text);
+  text-align: center;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+.w95-iconview > * > [class*="w95-ico-"] { width: 32px; height: 32px; }
+.w95-iconview > * > span:last-child { padding: 0 2px; line-height: 1.25; }
+.w95-iconview > [aria-selected="true"] > span:last-child { background: var(--w95-select); color: var(--w95-select-text); outline: 1px dotted var(--w95-tooltip); }
+.w95-iconview > [aria-selected="true"] > [class*="w95-ico-"] { filter: sepia(1) saturate(6) hue-rotate(190deg) brightness(0.55); }
+.w95-iconview > :focus-visible > span:last-child { outline: 1px dotted var(--w95-text); }
+
+/* ---------- Document page (WordPad) ---------- */
+
+.w95-ruler {
+  height: 20px;
+  margin: 0 0 2px;
+  background:
+    repeating-linear-gradient(90deg, var(--w95-text) 0 1px, transparent 1px 12px) 8px 13px / calc(100% - 16px) 3px no-repeat,
+    repeating-linear-gradient(90deg, var(--w95-text) 0 1px, transparent 1px 48px) 8px 9px / calc(100% - 16px) 7px no-repeat,
+    var(--w95-window);
+  box-shadow: var(--w95-shallow);
+}
+.w95-page-well { background: var(--w95-shadow); box-shadow: var(--w95-sunken); padding: 14px; overflow: auto; flex: 1; min-height: 0; }
+.w95-page {
+  max-width: 68ch;
+  margin: 0 auto;
+  padding: 40px 48px;
+  background: var(--w95-window);
+  color: var(--w95-text);
+  box-shadow: 2px 2px 0 var(--w95-dkshadow);
+  font-family: var(--w95-serif);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: auto;
+}
+.w95-page :where(h1, h2, h3) { font-family: var(--w95-serif); }
+.w95-page :where(p, ul) { margin: 0 0 10px; }
+.w95-page :where(ul) { padding-left: 22px; }
+@media (max-width: 640px) {
+  .w95-page-well { padding: 6px; }
+  .w95-page { padding: 20px 18px; font-size: 14px; }
+}
+
+/* ---------- Message box ---------- */
+
+.w95-msg { display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: start; padding: 10px 8px 4px; }
+.w95-msg > p, .w95-msg > div { padding-top: 4px; min-width: 0; }
+.w95-msg + .w95-btn-row { justify-content: center; padding: 10px 0 4px; }
+
+/* ---------- Scrollbars ---------- */
+
+.w95 ::-webkit-scrollbar { width: 16px; height: 16px; }
+.w95 ::-webkit-scrollbar-track { background-image: var(--w95-dither); background-size: 2px 2px; }
+.w95 ::-webkit-scrollbar-thumb { background: var(--w95-face); box-shadow: var(--w95-raised); }
+.w95 ::-webkit-scrollbar-corner { background: var(--w95-face); }
+.w95 ::-webkit-scrollbar-button:single-button { display: block; width: 16px; height: 16px; background-color: var(--w95-face); box-shadow: var(--w95-raised); background-repeat: no-repeat; background-position: center; }
+.w95 ::-webkit-scrollbar-button:single-button:active { box-shadow: var(--w95-shallow); }
+.w95 ::-webkit-scrollbar-button:single-button:vertical:decrement { background-image: var(--w95-g-up); }
+.w95 ::-webkit-scrollbar-button:single-button:vertical:increment { background-image: var(--w95-g-down); }
+.w95 ::-webkit-scrollbar-button:single-button:horizontal:decrement { background-image: var(--w95-g-left); }
+.w95 ::-webkit-scrollbar-button:single-button:horizontal:increment { background-image: var(--w95-g-right); }
+
+/* ======================================================================
+ * Desktop shell: desktop, icons, taskbar, Start menu
+ * ====================================================================== */
+
+.w95-desktop {
+  position: fixed;
+  inset: 0;
+  bottom: calc(var(--w95-taskbar-h) + env(safe-area-inset-bottom, 0px));
+  background: var(--w95-desktop);
+  overflow: hidden;
+}
+.w95-desktop > .w95-window { position: absolute; max-width: 100%; max-height: 100%; }
+.w95-desktop > .w95-window.is-maximized { inset: 0 !important; width: auto !important; height: auto !important; }
+
+.w95-icons {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 75px);
+  grid-auto-columns: 75px;
+  gap: 2px 4px;
+  padding: 6px;
+  height: 100%;
+  align-content: start;
+  justify-content: start;
+}
+.w95 .w95-desk-icon {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 75px;
+  padding-top: 4px;
+  color: var(--w95-hilight);
+  text-align: center;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+.w95-desk-icon > [class*="w95-ico-"] { width: 32px; height: 32px; }
+.w95-desk-icon > span:last-child { padding: 0 2px; line-height: 1.25; overflow-wrap: anywhere; }
+.w95-desk-icon[aria-selected="true"] > span:last-child { background: var(--w95-select); outline: 1px dotted var(--w95-tooltip); }
+.w95-desk-icon[aria-selected="true"] > [class*="w95-ico-"] { filter: sepia(1) saturate(6) hue-rotate(190deg) brightness(0.55); }
+.w95-desk-icon:focus-visible > span:last-child { outline: 1px dotted var(--w95-tooltip); }
+
+/* Taskbar */
+.w95-taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9000;
+  height: calc(var(--w95-taskbar-h) + env(safe-area-inset-bottom, 0px));
+  padding: 4px 2px calc(2px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  background: var(--w95-face);
+  box-shadow: inset 0 1px var(--w95-light), inset 0 2px var(--w95-hilight);
+}
+.w95 .w95-start {
+  min-width: 0;
+  min-height: 0;
+  padding: 0 5px 0 3px;
+  font-weight: 700;
+  gap: 3px;
+  flex: none;
+}
+.w95 .w95-start[aria-expanded="true"] { box-shadow: var(--w95-pressed); padding: 1px 4px 0 4px; }
+.w95-tasks { display: flex; gap: 3px; flex: 1; min-width: 0; overflow: hidden; }
+.w95 .w95-tasks button {
+  flex: 0 1 160px;
+  min-width: 0;
+  min-height: 0;
+  justify-content: flex-start;
+  padding: 0 6px;
+}
+.w95 .w95-tasks button.is-active { padding: 1px 5px 0 7px; font-weight: 700; }
+.w95-tasks button > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.w95-tray {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 6px;
+  box-shadow: var(--w95-shallow);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Start menu */
+.w95-startmenu {
+  position: fixed;
+  left: 2px;
+  bottom: calc(var(--w95-taskbar-h) + env(safe-area-inset-bottom, 0px) - 2px);
+  z-index: 9001;
+  display: flex;
+  background: var(--w95-face);
+  box-shadow: var(--w95-window-edge);
+  padding: 3px;
+  min-width: 190px;
+  max-width: calc(100vw - 4px);
+}
+.w95-startmenu-band {
+  width: 21px;
+  background: var(--w95-shadow);
+  color: var(--w95-face);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  flex: none;
+}
+.w95-startmenu-band b { color: var(--w95-hilight); }
+.w95-startmenu ul { list-style: none; margin: 0; padding: 0; flex: 1; }
+.w95 .w95-startmenu button, .w95 .w95-startmenu a {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 24px 0 6px;
+  cursor: default;
+  color: var(--w95-text);
+  white-space: nowrap;
+}
+.w95-startmenu [class*="w95-ico-"] { width: 24px; height: 24px; }
+.w95 .w95-startmenu button:hover, .w95 .w95-startmenu button:focus-visible,
+.w95 .w95-startmenu a:hover, .w95 .w95-startmenu a:focus-visible { background: var(--w95-select); color: var(--w95-select-text); }
+.w95-startmenu .w95-sep { height: 2px; margin: 2px 2px; box-shadow: var(--w95-shallow); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .w95-startmenu:not([hidden]) { animation: w95-slide 0.12s steps(4) both; }
+  @keyframes w95-slide { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+}
+
+/* "It's now safe to turn off your computer." */
+.w95-safe {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--w95-dkshadow);
+  color: #ff8c00;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: clamp(18px, 4vw, 34px);
+  padding: 16px;
+  cursor: pointer;
+}
+.w95-safe small { display: block; margin-top: 24px; font-size: 12px; color: var(--w95-shadow); }
+
+/* ---------- Phones: every window opens maximized ---------- */
+
+@media (max-width: 640px) {
+  .w95-desktop > .w95-window { inset: 0 !important; width: auto !important; height: auto !important; }
+  .w95-controls [data-action="maximize"], .w95-grip { display: none; }
+  .w95-titlebar { height: 26px; }
+  .w95 .w95-controls button { width: 24px; height: 20px; }
+  .w95-icons { grid-auto-flow: row; grid-template-columns: repeat(auto-fill, 88px); grid-template-rows: none; grid-auto-rows: 84px; justify-content: space-evenly; padding-inline: 16px; }
+  .w95 .w95-desk-icon { width: 88px; }
+  .w95 .w95-tasks button { flex-basis: 44px; }
+  .w95 .w95-tasks button > span:last-child { display: none; }
+  .w95 .w95-tasks button.is-active > span:last-child { display: inline; }
+  .w95 .w95-tasks button.is-active { flex: 0 1 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w95 *, .w95 *::before, .w95 *::after { transition: none !important; animation: none !important; }
+}
+
+/* ======================================================================
+ * Web 1.0 layer: for pages shown inside a browser window, c. 1996
+ * ====================================================================== */
+
+.w95-web {
+  --web-tile-a: #d8d0b8;
+  --web-tile-b: #e8e0c8;
+  font-family: var(--w95-serif);
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--w95-text);
+  background-color: var(--web-tile-b);
+  /* A 1996 "textured paper" tile */
+  background-image:
+    radial-gradient(circle at 25% 30%, var(--web-tile-a) 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 75%, var(--web-tile-a) 1px, transparent 1.5px),
+    radial-gradient(circle at 60% 20%, var(--w95-hilight) 0.8px, transparent 1.3px);
+  background-size: 9px 9px, 13px 13px, 7px 7px;
+  padding: 16px;
+  min-height: 100%;
+  -webkit-font-smoothing: auto;
+}
+.w95-web :where(h1, h2) { font-weight: 700; text-align: center; }
+.w95-web h1 { font-size: 30px; color: var(--w95-title); }
+.w95-web :where(p, ul) { margin-block: 0 12px; }
+.w95-web :where(hr) {
+  height: 4px;
+  border: 0;
+  margin: 14px 0;
+  background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+  box-shadow: none;
+}
+.w95-web .is-center { text-align: center; }
+.w95-web .is-small { font-size: 12px; }
+
+/* Hit counter: green LCD digits in black cells */
+.w95-counter { display: inline-flex; gap: 1px; padding: 2px; background: var(--w95-dkshadow); vertical-align: middle; }
+.w95-counter > span {
+  display: inline-block;
+  min-width: 13px;
+  padding: 1px 2px;
+  background: #1a1a1a;
+  color: #33ff33;
+  font-family: var(--w95-mono);
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Under construction tape */
+.w95-construction {
+  padding: 6px 10px;
+  text-align: center;
+  font-family: var(--w95-font);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--w95-text);
+  background: repeating-linear-gradient(-45deg, #ffcc00 0 12px, #000 12px 24px);
+}
+.w95-construction > span { background: #ffcc00; padding: 2px 8px; }
+
+/* Ticker, the respectable cousin of <marquee> */
+.w95-marquee { overflow: hidden; white-space: nowrap; }
+.w95-marquee > span { display: inline-block; padding-left: 100%; animation: w95-marquee 18s linear infinite; }
+@keyframes w95-marquee { to { transform: translateX(-100%); } }
+
+.w95-blink { animation: w95-blink 1s steps(1) infinite; }
+@keyframes w95-blink { 50% { visibility: hidden; } }
+
+.w95-badge-new {
+  display: inline-block;
+  padding: 0 3px;
+  margin-left: 4px;
+  background: #ff0000;
+  color: #ffff00;
+  font: 700 10px var(--w95-font);
+  vertical-align: middle;
+  transform: rotate(-6deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w95-marquee > span { padding-left: 0; }
+}

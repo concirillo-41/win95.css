@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>win95.css</title>
+<link rel="stylesheet" href="../dist/win95.css">
+<style>
+  /* Demo-only touches. Everything reusable lives in css/win95.css. */
+  .welcome { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 12px 12px 8px; }
+  .welcome h1 { grid-column: 1 / -1; font-size: 24px; font-weight: 400; letter-spacing: -0.5px; }
+  .welcome h1 b { font-weight: 700; }
+  .welcome h1 span { color: var(--w95-hilight); font-weight: 700; text-shadow: 1px 1px 0 var(--w95-shadow); }
+  .tip { display: grid; grid-template-columns: 32px 1fr; gap: 10px; padding: 12px; min-height: 120px; align-content: start; }
+  .tip h2 { font-size: 13px; grid-column: 2; }
+  .tip p { grid-column: 2; line-height: 1.5; }
+  .tip [class*="w95-ico-"] { grid-row: 1 / span 2; width: 32px; height: 32px; }
+  .welcome-buttons { display: grid; gap: 6px; align-content: start; }
+  .welcome-buttons hr { margin: 4px 0; }
+  .welcome-foot { padding: 0 12px 6px; }
+  .notepad { margin: 0; padding: 4px 6px; white-space: pre; font-size: 13px; line-height: 1.3; tab-size: 4; min-height: 100%; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .stack { display: grid; gap: 10px; align-content: start; }
+  .w95-toolbar b { font-size: 15px; line-height: 1; font-weight: 400; }
+  .address { display: flex; gap: 6px; align-items: center; padding: 2px 0 4px; }
+  .address input { flex: 1; min-width: 0; }
+  .browser-view { padding: 2px; flex: 1; min-height: 0; overflow: auto; background: var(--w95-window); box-shadow: var(--w95-sunken); }
+  .web-links { columns: 2 180px; }
+  .slider-labels { display: flex; justify-content: space-between; color: var(--w95-text); }
+  .demo-progress-label { display: flex; justify-content: space-between; }
+  .about-body { display: grid; gap: 8px; }
+  .font-view { display: grid; gap: 8px; align-content: start; line-height: 1.3; }
+  .font-view h2 { font-size: 22px; font-weight: 400; }
+  .font-view p { overflow-wrap: anywhere; }
+</style>
+</head>
+<body class="w95">
+
+<main class="w95-desktop" aria-label="Desktop">
+
+  <!-- Desktop icons -->
+  <div class="w95-icons" role="listbox" aria-label="Desktop icons">
+    <button class="w95-desk-icon" data-open="briefcase" role="option" aria-selected="false"><span class="w95-ico-briefcase"></span><span>My Briefcase</span></button>
+    <button class="w95-desk-icon" data-open="readme" role="option" aria-selected="false"><span class="w95-ico-notepad"></span><span>README.TXT</span></button>
+    <button class="w95-desk-icon" data-open="components" role="option" aria-selected="false"><span class="w95-ico-controls"></span><span>Control Panel</span></button>
+    <button class="w95-desk-icon" data-open="internet" role="option" aria-selected="false"><span class="w95-ico-globe"></span><span>The Internet</span></button>
+    <button class="w95-desk-icon" data-open="recycle" role="option" aria-selected="false"><span class="w95-ico-recycle"></span><span>Recycle Bin</span></button>
+  </div>
+
+  <!-- ============ Welcome ============ -->
+  <section class="w95-window" id="welcome" data-icon="info" data-w="500" data-h="auto" data-center aria-labelledby="welcome-title">
+    <div class="w95-titlebar">
+      <span class="w95-title" id="welcome-title">Welcome</span>
+      <div class="w95-controls">
+        <button data-action="close" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="welcome">
+      <h1><b>Welcome to</b> win95<span>.css</span></h1>
+      <div class="w95-panel tip">
+        <span class="w95-ico-info"></span>
+        <h2>Did you know...</h2>
+        <p id="tip-text" aria-live="polite">To open a window, double-click its icon. On a phone, one tap is enough. Progress is real.</p>
+      </div>
+      <div class="welcome-buttons">
+        <button data-open="readme">What's New</button>
+        <button data-open="components">Components</button>
+        <button id="next-tip">Next Tip</button>
+        <hr>
+        <button class="is-default" data-action="close">Close</button>
+      </div>
+    </div>
+    <div class="welcome-foot">
+      <label><input type="checkbox" id="show-welcome" checked> <span>Show this Welcome Screen next time you visit</span></label>
+    </div>
+  </section>
+
+  <!-- ============ README.TXT ============ -->
+  <section class="w95-window" id="readme" data-icon="notepad" data-w="560" data-h="440" hidden>
+    <div class="w95-titlebar">
+      <span class="w95-ico-notepad"></span>
+      <span class="w95-title">README.TXT - Notepad</span>
+      <div class="w95-controls">
+        <button data-action="minimize" aria-label="Minimize"></button>
+        <button data-action="maximize" aria-label="Maximize"></button>
+        <button data-action="close" aria-label="Close"></button>
+      </div>
+    </div>
+    <ul class="w95-menubar">
+      <li><button aria-controls="readme-file" aria-expanded="false"><span class="w95-key">F</span>ile</button>
+        <ul class="w95-menu" id="readme-file" hidden>
+          <li><button disabled>New</button></li>
+          <li><button disabled>Open...</button></li>
+          <li><button disabled>Save <kbd>Ctrl+S</kbd></button></li>
+          <li class="w95-sep" role="separator"></li>
+          <li><button data-action="close">Exit</button></li>
+        </ul>
+      </li>
+      <li><button aria-controls="readme-edit" aria-expanded="false"><span class="w95-key">E</span>dit</button>
+        <ul class="w95-menu" id="readme-edit" hidden>
+          <li><button id="copy-setup">Copy setup code</button></li>
+          <li><button aria-checked="true" disabled>Word Wrap</button></li>
+        </ul>
+      </li>
+      <li><button aria-controls="readme-help" aria-expanded="false"><span class="w95-key">H</span>elp</button>
+        <ul class="w95-menu" id="readme-help" hidden>
+          <li><button data-open="font">About the font</button></li>
+          <li><button data-open="about">About win95.css</button></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="w95-body is-flush w95-panel" style="padding:0">
+<pre class="notepad">WIN95.CSS                                README.TXT
+==================================================
+
+Version 0.1.0 (4.00.950 in spirit).
+A Windows 95 interface kit for the web. One
+stylesheet, one optional script, no frameworks.
+
+
+SETUP
+-----
+&lt;link rel="stylesheet" href="dist/win95.css"&gt;
+&lt;script src="dist/win95.js" defer&gt;&lt;/script&gt;
+
+npm i win95.css, or straight from a CDN:
+https://cdn.jsdelivr.net/npm/win95.css/dist/win95.css
+
+&lt;body class="w95"&gt;
+
+
+A WINDOW
+--------
+&lt;section class="w95-window" id="readme"
+         data-icon="notepad" data-w="480" data-h="360"&gt;
+  &lt;div class="w95-titlebar"&gt;
+    &lt;span class="w95-ico-notepad"&gt;&lt;/span&gt;
+    &lt;span class="w95-title"&gt;README.TXT - Notepad&lt;/span&gt;
+    &lt;div class="w95-controls"&gt;
+      &lt;button data-action="minimize"&gt;&lt;/button&gt;
+      &lt;button data-action="maximize"&gt;&lt;/button&gt;
+      &lt;button data-action="close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="w95-body"&gt;...&lt;/div&gt;
+  &lt;span class="w95-grip"&gt;&lt;/span&gt;
+&lt;/section&gt;
+
+Anything with data-open="readme" opens it.
+Add #readme to the URL to open it on arrival.
+data-h="auto" sizes a dialog to its content.
+data-center centers it.
+
+
+COMPONENTS
+----------
+button, .w95-btn         .is-default  .is-active
+fieldset + legend        group box
+.w95-tabs                [role=tab] + .w95-tabpanel
+.w95-list                plain list box
+.w95-table               list view with headers
+.w95-tree                tree view on &lt;details&gt;
+.w95-iconview            large-icon folder view
+.w95-toolbar             flat buttons; .is-big
+.w95-ruler .w95-page     WordPad document
+.w95-progress &gt; span     style="--value: 40%"
+.w95-menubar .w95-menu   drop-down menus
+.w95-statusbar           .w95-statusfield
+.w95-msg                 message box layout
+.w95-panel  .w95-inset   sunken + shallow wells
+[data-tip="..."]         yellow tooltip
+
+ICONS (16x16, scale with .w95-ico-32)
+.w95-ico-folder   .w95-ico-computer  .w95-ico-notepad
+.w95-ico-recycle  .w95-ico-globe     .w95-ico-mail
+.w95-ico-briefcase .w95-ico-controls .w95-ico-error
+.w95-ico-info     .w95-ico-warning   .w95-ico-doc
+.w95-ico-floppy   .w95-ico-paint     .w95-ico-cd
+.w95-ico-star
+
+THE 1996 WEB
+------------
+.w95-web           tiled-paper page, Times
+.w95-counter       hit counter
+.w95-construction  under construction tape
+.w95-marquee       ticker
+.w95-badge-new     NEW!
+.w95-blink         use sparingly. or don't.
+
+
+KNOWN ISSUES
+------------
+- Font smoothing is off on purpose.
+- Will not run in 4 MB of RAM. Neither will
+  anything else.
+- Phones open every window maximized. This is
+  the one place we improved on the original.
+
+
+THE FONT
+--------
+W95 Sans, drawn for this kit on a pixel grid:
+caps 8px, x-height 6px, 3 KB per weight.
+Set --w95-font to use something else.
+
+CREDITS
+-------
+Font and icons drawn by hand, one pixel at a
+time. 98.css showed the way.</pre>
+    </div>
+    <span class="w95-grip" aria-hidden="true"></span>
+  </section>
+
+  <!-- ============ Control Panel: components ============ -->
+  <section class="w95-window" id="components" data-icon="controls" data-w="470" data-h="auto" style="--w95-tab-min: 330px" hidden>
+    <div class="w95-titlebar">
+      <span class="w95-ico-controls"></span>
+      <span class="w95-title">Display Properties</span>
+      <div class="w95-controls">
+        <button data-action="minimize" aria-label="Minimize"></button>
+        <button data-action="maximize" aria-label="Maximize"></button>
+        <button data-action="close" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="w95-body w95-tabs">
+      <div class="w95-tablist" role="tablist" aria-label="Components">
+        <button role="tab" aria-selected="true" aria-controls="tab-buttons" id="t-buttons">Buttons</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-inputs" tabindex="-1">Inputs</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-lists" tabindex="-1">Lists</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-feedback" tabindex="-1">Feedback</button>
+      </div>
+
+      <div class="w95-tabpanel stack" role="tabpanel" id="tab-buttons">
+        <fieldset>
+          <legend>Push buttons</legend>
+          <div class="w95-btn-row">
+            <button class="is-default">OK</button>
+            <button>Cancel</button>
+            <button disabled>Apply</button>
+            <button class="is-active">Pressed</button>
+          </div>
+        </fieldset>
+        <div class="grid-2">
+          <fieldset>
+            <legend>Connection speed</legend>
+            <label><input type="radio" name="baud" id="baud-14"> <span>14.4 Kbps</span></label>
+            <label><input type="radio" name="baud" id="baud-28" checked> <span>28.8 Kbps</span></label>
+            <label><input type="radio" name="baud" id="baud-56"> <span>56K, allegedly</span></label>
+            <label><input type="radio" name="baud" id="baud-isdn" disabled> <span>ISDN (ask IT)</span></label>
+          </fieldset>
+          <fieldset>
+            <legend>Options</legend>
+            <label><input type="checkbox" id="opt-wallpaper" checked> <span>Show wallpaper</span></label>
+            <label><input type="checkbox" id="opt-sounds"> <span>Play startup sound</span></label>
+            <label><input type="checkbox" id="opt-tips" checked> <span>Show tips</span></label>
+            <label><input type="checkbox" id="opt-locked" checked disabled> <span>Read-only</span></label>
+          </fieldset>
+        </div>
+        <fieldset>
+          <legend>Tooltips</legend>
+          <div class="w95-btn-row">
+            <button data-tip="Saves nothing, beautifully">Hover me</button>
+            <span class="w95-tooltip">A tooltip, standing still</span>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="w95-tabpanel stack" role="tabpanel" id="tab-inputs" hidden>
+        <div class="w95-field">
+          <label for="f-name">Your name:</label>
+          <input type="text" id="f-name" value="Con Cirillo">
+        </div>
+        <div class="grid-2">
+          <div class="w95-field">
+            <label for="f-res">Desktop area:</label>
+            <select id="f-res">
+              <option>640 by 480 pixels</option>
+              <option selected>800 by 600 pixels</option>
+              <option>1024 by 768 pixels</option>
+            </select>
+          </div>
+          <div class="w95-field">
+            <label for="f-colors">Color palette:</label>
+            <select id="f-colors" disabled>
+              <option>High Color (16 bit)</option>
+            </select>
+          </div>
+        </div>
+        <div class="w95-field">
+          <label for="f-slider">Font size:</label>
+          <input type="range" id="f-slider" min="0" max="4" value="1">
+          <div class="slider-labels" aria-hidden="true"><span>Small</span><span>Large</span></div>
+        </div>
+        <div class="w95-field">
+          <label for="f-notes">Notes:</label>
+          <textarea id="f-notes" rows="4">Everything here is a real form control with a stable id. Type in it. Nothing gets submitted anywhere.</textarea>
+        </div>
+        <div class="w95-field is-row">
+          <label for="f-serial">Product ID:</label>
+          <input type="text" id="f-serial" value="00395-OEM-0026157-48274" readonly>
+        </div>
+      </div>
+
+      <div class="w95-tabpanel stack" role="tabpanel" id="tab-lists" hidden>
+        <div class="w95-tree" style="max-height:150px">
+          <ul>
+            <li><details open><summary><span class="w95-ico-computer"></span> My Computer</summary>
+              <ul>
+                <li><details open><summary><span class="w95-ico-folder"></span> C:\PROJECTS</summary>
+                  <ul>
+                    <li><span class="w95-leaf"><span class="w95-ico-folder"></span> CHARTSMITH</span></li>
+                    <li><span class="w95-leaf"><span class="w95-ico-folder"></span> SETLIST~1</span></li>
+                    <li><span class="w95-leaf"><span class="w95-ico-folder"></span> LIQUID~1</span></li>
+                  </ul>
+                </details></li>
+                <li><details><summary><span class="w95-ico-folder"></span> C:\WINDOWS</summary>
+                  <ul>
+                    <li><span class="w95-leaf"><span class="w95-ico-notepad"></span> WIN.INI</span></li>
+                  </ul>
+                </details></li>
+                <li><span class="w95-leaf"><span class="w95-ico-recycle"></span> Recycle Bin</span></li>
+              </ul>
+            </details></li>
+          </ul>
+        </div>
+        <div class="w95-table-wrap" style="max-height:140px">
+          <table class="w95-table">
+            <thead><tr><th>Name</th><th class="is-num">Size</th><th>Type</th></tr></thead>
+            <tbody>
+              <tr><td><span class="w95-cell"><span class="w95-ico-notepad"></span> AUTOEXEC.BAT</span></td><td class="is-num">1 KB</td><td>MS-DOS Batch File</td></tr>
+              <tr aria-selected="true"><td><span class="w95-cell"><span class="w95-ico-notepad"></span> CONFIG.SYS</span></td><td class="is-num">1 KB</td><td>System file</td></tr>
+              <tr><td><span class="w95-cell"><span class="w95-ico-folder"></span> PORTFOLIO</span></td><td class="is-num"></td><td>File Folder</td></tr>
+              <tr><td><span class="w95-cell"><span class="w95-ico-mail"></span> INBOX.MBX</span></td><td class="is-num">2,048 KB</td><td>Mailbox</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="w95-tabpanel stack" role="tabpanel" id="tab-feedback" hidden>
+        <fieldset>
+          <legend>Progress</legend>
+          <div class="demo-progress-label"><span id="copy-file">Copying CONFIG.SYS</span><span id="copy-pct">0%</span></div>
+          <div class="w95-progress" role="progressbar" aria-labelledby="copy-file" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="copy-bar"><span></span></div>
+          <div id="copy-eta">Estimated time remaining: calculating...</div>
+        </fieldset>
+        <fieldset>
+          <legend>Message boxes</legend>
+          <div class="w95-btn-row">
+            <button data-open="msg-info">Information</button>
+            <button data-open="msg-warning">Warning</button>
+            <button data-open="msg-error">Error</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Status bar</legend>
+          <div class="w95-statusbar" style="margin:0">
+            <div class="w95-statusfield">For Help, press F1</div>
+            <div class="w95-statusfield is-fit">NUM</div>
+            <div class="w95-statusfield is-fit">Ln 1, Col 1</div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="w95-btn-row is-end" style="padding-top:8px">
+        <button class="is-default" data-action="close">OK</button>
+        <button data-action="close">Cancel</button>
+        <button disabled>Apply</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ The Internet ============ -->
+  <section class="w95-window" id="internet" data-icon="globe" data-w="640" data-h="500" hidden>
+    <div class="w95-titlebar">
+      <span class="w95-ico-globe"></span>
+      <span class="w95-title">Con's Home Page - The Internet</span>
+      <div class="w95-controls">
+        <button data-action="minimize" aria-label="Minimize"></button>
+        <button data-action="maximize" aria-label="Maximize"></button>
+        <button data-action="close" aria-label="Close"></button>
+      </div>
+    </div>
+    <ul class="w95-menubar">
+      <li><button aria-controls="ie-file" aria-expanded="false"><span class="w95-key">F</span>ile</button>
+        <ul class="w95-menu" id="ie-file" hidden>
+          <li><button disabled>Open...</button></li>
+          <li><button disabled>Save As File...</button></li>
+          <li class="w95-sep" role="separator"></li>
+          <li><button data-action="close">Close</button></li>
+        </ul>
+      </li>
+      <li><button aria-controls="ie-fav" aria-expanded="false">F<span class="w95-key">a</span>vorites</button>
+        <ul class="w95-menu" id="ie-fav" hidden>
+          <li><a href="https://web.archive.org/web/19961229152939/http://www2.windows95.com:80/" target="_blank" rel="noopener">windows95.com, Dec 1996</a></li>
+          <li><a href="https://www.spacejam.com/1996/" target="_blank" rel="noopener">Space Jam (still online)</a></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="w95-toolbar is-big" role="toolbar" aria-label="Navigation">
+      <button disabled><b>&#9664;</b><span>Back</span></button>
+      <button disabled><b>&#9654;</b><span>Forward</span></button>
+      <button id="ie-stop"><b>&#9632;</b><span>Stop</span></button>
+      <button id="ie-refresh"><b>&#8635;</b><span>Refresh</span></button>
+    </div>
+    <div class="address">
+      <label for="ie-address">Address</label>
+      <input type="text" id="ie-address" value="http://www.geocities.com/SiliconValley/Heights/1995/" readonly>
+    </div>
+    <div class="browser-view">
+      <article class="w95-web">
+        <div class="w95-marquee" aria-hidden="true"><span>*** Welcome to my corner of the Information Superhighway! *** Sign my guestbook! *** New: this whole website ***</span></div>
+        <h1>Con's Home Page</h1>
+        <p class="is-center"><i>Marketing &middot; Software &middot; Drums &middot; The Dead</i></p>
+        <hr>
+        <div class="w95-construction"><span>THIS PAGE IS UNDER CONSTRUCTION</span></div>
+        <p style="margin-top:12px">Hi! Thanks for stopping by. This page is the demo for <b>win95.css</b>. Everything on it, down to the hit counter, is one stylesheet. See what it looks like with real work inside <a href="#briefcase" data-open="briefcase">My Briefcase</a>.</p>
+        <h2>Cool Links</h2>
+        <ul class="web-links">
+          <li><a href="#readme" data-open="readme">How to use win95.css</a><span class="w95-badge-new">NEW!</span></li>
+          <li><a href="#components" data-open="components">Every component</a></li>
+          <li><a href="#recycle" data-open="recycle">Things I threw away</a></li>
+          <li><a href="https://web.archive.org/web/19961229152939/http://www2.windows95.com:80/" target="_blank" rel="noopener">The original windows95.com</a></li>
+        </ul>
+        <hr>
+        <p class="is-center">You are visitor number
+          <span class="w95-counter" aria-label="000427"><span>0</span><span>0</span><span>0</span><span>4</span><span>2</span><span>7</span></span></p>
+        <p class="is-center is-small">[ &lt;&lt; Prev | <a href="#internet">Marketing Webring</a> | Next &gt;&gt; ]</p>
+        <p class="is-center is-small">Best viewed at 800x600 in any browser.<br>Last updated 12/29/96. (It was updated this week.)</p>
+      </article>
+    </div>
+    <div class="w95-statusbar">
+      <div class="w95-statusfield" id="ie-status">Done</div>
+      <div class="w95-statusfield is-fit"><span class="w95-ico-globe"></span> Internet zone</div>
+    </div>
+    <span class="w95-grip" aria-hidden="true"></span>
+  </section>
+
+  <!-- ============ My Briefcase ============ -->
+  <section class="w95-window" id="briefcase" data-icon="briefcase" data-w="520" data-h="300" hidden>
+    <div class="w95-titlebar">
+      <span class="w95-ico-briefcase"></span>
+      <span class="w95-title">My Briefcase</span>
+      <div class="w95-controls">
+        <button data-action="minimize" aria-label="Minimize"></button>
+        <button data-action="maximize" aria-label="Maximize"></button>
+        <button data-action="close" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="w95-body is-flush w95-table-wrap">
+      <table class="w95-table">
+        <thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Modified</th></tr></thead>
+        <tbody>
+          <tr><td><span class="w95-cell"><span class="w95-ico-folder"></span> Setlist Sky</span></td><td>Web app</td><td>Up-to-date</td><td>9/30/26</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-folder"></span> Chartsmith</span></td><td>Tool</td><td>Up-to-date</td><td>9/30/26</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-folder"></span> Marketer Tools</span></td><td>Directory</td><td>Needs updating</td><td>9/30/26</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-folder"></span> Liquid Light Machine</span></td><td>WebGL toy</td><td>Up-to-date</td><td>9/26</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-folder"></span> Groove Scorer</span></td><td>Web MIDI</td><td>Up-to-date</td><td>9/26</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-folder"></span> Sports Card Lister</span></td><td>CLI</td><td>Up-to-date</td><td>9/26</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="w95-statusbar">
+      <div class="w95-statusfield">6 object(s)</div>
+      <div class="w95-statusfield is-fit">Example data</div>
+    </div>
+    <span class="w95-grip" aria-hidden="true"></span>
+  </section>
+
+  <!-- ============ Font viewer ============ -->
+  <section class="w95-window" id="font" data-icon="notepad" data-w="560" data-h="440" hidden>
+    <div class="w95-titlebar">
+      <span class="w95-ico-notepad"></span>
+      <span class="w95-title">W95 Sans (TrueType)</span>
+      <div class="w95-controls">
+        <button data-action="minimize" aria-label="Minimize"></button>
+        <button data-action="maximize" aria-label="Maximize"></button>
+        <button data-action="close" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="w95-btn-row" style="padding:4px 0 6px"><button data-action="close">Done</button><button disabled>Print</button></div>
+    <div class="w95-body w95-panel font-view">
+      <h2>W95 Sans (TrueType)</h2>
+      <p>Typeface name: W95 Sans<br>File size: 3 KB per weight<br>Version: 1.0, drawn by hand on a pixel grid for win95.css. MIT licence.</p>
+      <hr>
+      <p>abcdefghijklmnopqrstuvwxyz<br>ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>1234567890.:,;'"(!?)+-*/=</p>
+      <hr>
+      <p style="font-size:11px">11 The quick brown fox jumps over the lazy dog. 1234567890</p>
+      <p style="font-size:22px">22 The quick brown fox jumps over the lazy dog.</p>
+      <p style="font-size:33px">33 The quick brown fox jumps</p>
+      <p style="font-size:22px;font-weight:700">22 Bold: Sphinx of black quartz</p>
+    </div>
+  </section>
+
+  <!-- ============ Recycle Bin ============ -->
+  <section class="w95-window" id="recycle" data-icon="recycle" data-w="540" data-h="290" hidden>
+    <div class="w95-titlebar">
+      <span class="w95-ico-recycle"></span>
+      <span class="w95-title">Recycle Bin</span>
+      <div class="w95-controls">
+        <button data-action="minimize" aria-label="Minimize"></button>
+        <button data-action="maximize" aria-label="Maximize"></button>
+        <button data-action="close" aria-label="Close"></button>
+      </div>
+    </div>
+    <ul class="w95-menubar">
+      <li><button aria-controls="rb-file" aria-expanded="false"><span class="w95-key">F</span>ile</button>
+        <ul class="w95-menu" id="rb-file" hidden>
+          <li><button data-open="msg-empty">Empty Recycle Bin</button></li>
+          <li><button disabled>Restore</button></li>
+          <li class="w95-sep" role="separator"></li>
+          <li><button data-action="close">Close</button></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="w95-body is-flush w95-table-wrap">
+      <table class="w95-table">
+        <thead><tr><th>Name</th><th>Original Location</th><th>Date Deleted</th></tr></thead>
+        <tbody>
+          <tr><td><span class="w95-cell"><span class="w95-ico-notepad"></span> flash_intro.swf</span></td><td>C:\WEBSITES\2001</td><td>12/31/20</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-notepad"></span> skeuomorphism.zip</span></td><td>C:\DESIGN</td><td>6/10/13</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-notepad"></span> mission_statement_v14_FINAL.doc</span></td><td>C:\MARKETING</td><td>3/2/09</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-notepad"></span> synergy.ppt</span></td><td>C:\MARKETING</td><td>3/2/09</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-notepad"></span> hit_counter.cgi</span></td><td>C:\WEBSITES\1996</td><td>8/1/04</td></tr>
+          <tr><td><span class="w95-cell"><span class="w95-ico-notepad"></span> under_construction.gif</span></td><td>C:\WEBSITES\1996</td><td>Restored</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="w95-statusbar">
+      <div class="w95-statusfield">6 object(s)</div>
+      <div class="w95-statusfield is-fit">Some of these are coming back</div>
+    </div>
+  </section>
+
+  <!-- ============ Message boxes ============ -->
+  <section class="w95-window" id="msg-info" data-icon="info" data-w="340" data-h="auto" data-center hidden>
+    <div class="w95-titlebar"><span class="w95-title">Display Properties</span>
+      <div class="w95-controls"><button data-action="close" aria-label="Close"></button></div></div>
+    <div class="w95-msg"><span class="w95-ico-info w95-ico-32"></span>
+      <p>Your settings have been saved. You may need to restart your computer for the changes to take effect.</p></div>
+    <div class="w95-btn-row"><button class="is-default" data-action="close">OK</button></div>
+  </section>
+
+  <section class="w95-window" id="msg-warning" data-icon="warning" data-w="360" data-h="auto" data-center hidden>
+    <div class="w95-titlebar"><span class="w95-title">Rename</span>
+      <div class="w95-controls"><button data-action="close" aria-label="Close"></button></div></div>
+    <div class="w95-msg"><span class="w95-ico-warning w95-ico-32"></span>
+      <p>If you change a file name extension, the file may become unusable.<br><br>Are you sure you want to rename <b>resume.doc</b> to <b>resume_FINAL_v2.doc</b>?</p></div>
+    <div class="w95-btn-row"><button class="is-default" data-action="close">Yes</button><button data-action="close">No</button></div>
+  </section>
+
+  <section class="w95-window" id="msg-error" data-icon="error" data-w="380" data-h="auto" data-center hidden>
+    <div class="w95-titlebar"><span class="w95-title">PORTFOLIO</span>
+      <div class="w95-controls"><button data-action="close" aria-label="Close"></button></div></div>
+    <div class="w95-msg"><span class="w95-ico-error w95-ico-32"></span>
+      <p>This program has performed an illegal operation and will be shut down.<br><br>If the problem persists, it is probably a feature.</p></div>
+    <div class="w95-btn-row"><button class="is-default" data-action="close">Close</button><button disabled>Details &gt;&gt;</button></div>
+  </section>
+
+  <section class="w95-window" id="msg-empty" data-icon="warning" data-w="360" data-h="auto" data-center hidden>
+    <div class="w95-titlebar"><span class="w95-title">Confirm Multiple File Delete</span>
+      <div class="w95-controls"><button data-action="close" aria-label="Close"></button></div></div>
+    <div class="w95-msg"><span class="w95-ico-recycle w95-ico-32"></span>
+      <p>Are you sure you want to delete these 6 items?<br><br>Some of them mean a lot to people.</p></div>
+    <div class="w95-btn-row"><button data-action="close">Yes</button><button class="is-default" data-action="close">No</button></div>
+  </section>
+
+  <section class="w95-window" id="about" data-icon="info" data-w="360" data-h="auto" data-center hidden>
+    <div class="w95-titlebar"><span class="w95-title">About win95.css</span>
+      <div class="w95-controls"><button data-action="close" aria-label="Close"></button></div></div>
+    <div class="w95-msg"><span class="w95-ico-computer w95-ico-32"></span>
+      <div class="about-body">
+        <p><b>win95.css</b><br>Version 4.00.950<br>Copyright &copy; 2026 Con Cirillo</p>
+        <hr>
+        <p>This product is licensed to:<br>Whoever is reading this</p>
+        <p>Physical memory available: Plenty</p>
+      </div></div>
+    <div class="w95-btn-row"><button class="is-default" data-action="close">OK</button></div>
+  </section>
+
+</main>
+
+<!-- ============ Start menu ============ -->
+<nav class="w95-startmenu" id="startmenu" aria-label="Start menu" hidden>
+  <div class="w95-startmenu-band" aria-hidden="true"><span>win<b>95.css</b></span></div>
+  <ul>
+    <li><button data-open="briefcase"><span class="w95-ico-briefcase"></span> My Briefcase</button></li>
+    <li><button data-open="readme"><span class="w95-ico-notepad"></span> Documents</button></li>
+    <li><button data-open="components"><span class="w95-ico-controls"></span> Settings</button></li>
+    <li><button data-open="internet"><span class="w95-ico-globe"></span> The Internet</button></li>
+    <li><button data-open="font"><span class="w95-ico-notepad"></span> Fonts</button></li>
+    <li><button data-open="about"><span class="w95-ico-info"></span> Help</button></li>
+    <li class="w95-sep" role="separator"></li>
+    <li><button data-action="shutdown"><span class="w95-ico-computer"></span> Shut Down...</button></li>
+  </ul>
+</nav>
+
+<!-- ============ Taskbar ============ -->
+<footer class="w95-taskbar">
+  <button class="w95-start" aria-controls="startmenu" aria-expanded="false"><span class="w95-ico-computer"></span>Start</button>
+  <div class="w95-tasks" aria-label="Open windows"></div>
+  <div class="w95-tray"><span class="w95-clock" aria-live="off">12:00 PM</span></div>
+</footer>
+
+<script src="../dist/win95.js"></script>
+<script>
+  // Demo wiring: welcome tips, the copy progress bar, the Notepad copy command.
+  (() => {
+    const tips = [
+      'To open a window, double-click its icon. On a phone, one tap is enough. Progress is real.',
+      'You can drag any window by its title bar, and resize most of them from the bottom-right corner.',
+      'Every control on this page is plain HTML and one stylesheet. No frameworks were harmed.',
+      'This site was built in 2026. The design was finalized in August 1995.',
+      'The Recycle Bin holds things the web has moved past. Please do not restore them.',
+      'Press Esc to close a menu. Press the Start button to see where everything lives.',
+    ];
+    let t = 0;
+    const tipText = document.getElementById('tip-text');
+    document.getElementById('next-tip').addEventListener('click', () => {
+      t = (t + 1) % tips.length;
+      tipText.textContent = tips[t];
+    });
+
+    const show = document.getElementById('show-welcome');
+    try {
+      if (localStorage.getItem('w95-welcome') === 'off' && !location.hash) {
+        show.checked = false;
+        document.getElementById('welcome').hidden = true;
+      }
+    } catch {}
+    show.addEventListener('change', () => {
+      try { localStorage.setItem('w95-welcome', show.checked ? 'on' : 'off'); } catch {}
+    });
+
+    // Progress: copies a few files forever, with an honest ETA.
+    const files = ['CONFIG.SYS', 'AUTOEXEC.BAT', 'PORTFOLIO.EXE', 'RESUME.DOC', 'SYNERGY.PPT', 'TASTE.DLL'];
+    const bar = document.getElementById('copy-bar');
+    const etas = ['3 minutes', '14 seconds', '2 hours', '6 seconds', '1 minute', 'about a week', '9 seconds'];
+    let pct = 0, f = 0, timer = null;
+    const step = () => {
+      pct = Math.min(100, pct + Math.ceil(Math.random() * 9));
+      bar.firstElementChild.style.setProperty('--value', pct + '%');
+      bar.setAttribute('aria-valuenow', pct);
+      document.getElementById('copy-pct').textContent = pct + '%';
+      if (pct % 3 === 0) document.getElementById('copy-eta').textContent = 'Estimated time remaining: ' + etas[(pct / 3) % etas.length | 0];
+      if (pct === 100) {
+        pct = 0;
+        f = (f + 1) % files.length;
+        document.getElementById('copy-file').textContent = 'Copying ' + files[f];
+      }
+    };
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById('components').addEventListener('w95:open', () => {
+      if (reduce) { pct = 40; step(); return; }
+      clearInterval(timer);
+      timer = setInterval(step, 350);
+    });
+    document.getElementById('components').addEventListener('w95:close', () => clearInterval(timer));
+
+    document.getElementById('copy-setup').addEventListener('click', () => {
+      const code = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/win95.css/dist/win95.css">\n<script src="https://cdn.jsdelivr.net/npm/win95.css/dist/win95.js" defer><\/script>';
+      navigator.clipboard?.writeText(code).catch(() => {});
+    });
+
+    const status = document.getElementById('ie-status');
+    document.getElementById('ie-refresh').addEventListener('click', () => {
+      status.textContent = 'Opening page http://www.geocities.com/SiliconValley/Heights/1995/...';
+      setTimeout(() => (status.textContent = 'Done'), 1400);
+    });
+    document.getElementById('ie-stop').addEventListener('click', () => (status.textContent = 'Stopped. It was already done.'));
+  })();
+</script>
+</body>
+</html>

@@ -335,6 +335,9 @@ const VARIANTS = {
   'g-dot-off': ['g-dot', { k: PAL.d }],
   'g-down-off': ['g-down', { k: PAL.d }],
 };
+// High Contrast Black: white ink on black, radio wells inverted.
+const HC = { k: '#ffffff', K: '#ffffff', W: '#000000', w: '#808080', l: '#808080', d: '#808080' };
+for (const g of ['g-close', 'g-max', 'g-min', 'g-restore', 'g-down', 'g-up', 'g-left', 'g-right', 'g-check', 'g-radio', 'g-dot']) VARIANTS[`${g}-hc`] = [g, HC];
 
 function svg(rows, name, pal = PAL) {
   const w = Math.max(...rows.map((r) => r.length));

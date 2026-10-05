@@ -29,6 +29,8 @@
   .slider-labels { display: flex; justify-content: space-between; color: var(--w95-text); }
   .demo-progress-label { display: flex; justify-content: space-between; }
   .about-body { display: grid; gap: 8px; }
+  .scheme-preview { background: var(--w95-desktop); padding: 14px; }
+  .scheme-preview .w95-window { max-width: 260px; }
   .font-view { display: grid; gap: 8px; align-content: start; line-height: 1.3; }
   .font-view h2 { font-size: 22px; font-weight: 400; }
   .font-view p { overflow-wrap: anywhere; }
@@ -39,13 +41,32 @@
 <main class="w95-desktop" aria-label="Desktop">
 
   <!-- Desktop icons -->
-  <div class="w95-icons" role="listbox" aria-label="Desktop icons">
+  <div class="w95-icons" role="listbox" aria-label="Desktop icons" data-contextmenu="desk-menu">
     <button class="w95-desk-icon" data-open="briefcase" role="option" aria-selected="false"><span class="w95-ico-briefcase"></span><span>My Briefcase</span></button>
     <button class="w95-desk-icon" data-open="readme" role="option" aria-selected="false"><span class="w95-ico-notepad"></span><span>README.TXT</span></button>
     <button class="w95-desk-icon" data-open="components" role="option" aria-selected="false"><span class="w95-ico-controls"></span><span>Control Panel</span></button>
     <button class="w95-desk-icon" data-open="internet" role="option" aria-selected="false"><span class="w95-ico-globe"></span><span>The Internet</span></button>
     <button class="w95-desk-icon" data-open="recycle" role="option" aria-selected="false"><span class="w95-ico-recycle"></span><span>Recycle Bin</span></button>
   </div>
+
+  <ul class="w95-menu" id="desk-menu" hidden aria-label="Desktop">
+    <li><button aria-haspopup="menu" aria-controls="desk-arrange" aria-expanded="false">Arrange <span class="w95-key">I</span>cons</button>
+      <ul class="w95-menu" id="desk-arrange" hidden>
+        <li><button data-arrange="name">by <span class="w95-key">N</span>ame</button></li>
+        <li><button data-arrange="type">by <span class="w95-key">T</span>ype</button></li>
+      </ul>
+    </li>
+    <li><button data-arrange="reset">Line <span class="w95-key">u</span>p Icons</button></li>
+    <li class="w95-sep" role="separator"></li>
+    <li><button aria-haspopup="menu" aria-controls="desk-new" aria-expanded="false">Ne<span class="w95-key">w</span></button>
+      <ul class="w95-menu" id="desk-new" hidden>
+        <li><button disabled><span class="w95-ico-folder"></span> Folder</button></li>
+        <li><button disabled><span class="w95-ico-notepad"></span> Text Document</button></li>
+      </ul>
+    </li>
+    <li class="w95-sep" role="separator"></li>
+    <li><button id="desk-props">P<span class="w95-key">r</span>operties</button></li>
+  </ul>
 
   <!-- ============ Welcome ============ -->
   <section class="w95-window" id="welcome" data-icon="info" data-w="500" data-h="auto" data-center aria-labelledby="welcome-title">
@@ -147,6 +168,7 @@ A WINDOW
 &lt;/section&gt;
 
 Anything with data-open="readme" opens it.
+data-modal blocks the desktop until it closes.
 Add #readme to the URL to open it on arrival.
 data-h="auto" sizes a dialog to its content.
 data-center centers it.
@@ -169,6 +191,14 @@ fieldset + legend        group box
 .w95-msg                 message box layout
 .w95-panel  .w95-inset   sunken + shallow wells
 [data-tip="..."]         yellow tooltip
+[data-contextmenu="id"]  right-click menu
+[aria-haspopup="menu"]   cascading submenu
+
+COLOUR SCHEMES
+--------------
+&lt;html data-scheme="desert"&gt;
+standard, desert, rainy-day, eggplant,
+high-contrast. Or call W95.scheme("desert").
 
 ICONS (16x16, scale with .w95-ico-32)
 .w95-ico-folder   .w95-ico-computer  .w95-ico-notepad
@@ -228,6 +258,7 @@ time. 98.css showed the way.</pre>
         <button role="tab" aria-selected="false" aria-controls="tab-inputs" tabindex="-1">Inputs</button>
         <button role="tab" aria-selected="false" aria-controls="tab-lists" tabindex="-1">Lists</button>
         <button role="tab" aria-selected="false" aria-controls="tab-feedback" tabindex="-1">Feedback</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-appearance" tabindex="-1" id="t-appearance">Appearance</button>
       </div>
 
       <div class="w95-tabpanel stack" role="tabpanel" id="tab-buttons">
@@ -349,6 +380,7 @@ time. 98.css showed the way.</pre>
             <button data-open="msg-info">Information</button>
             <button data-open="msg-warning">Warning</button>
             <button data-open="msg-error">Error</button>
+            <button data-open="msg-restart">Modal</button>
           </div>
         </fieldset>
         <fieldset>
@@ -359,6 +391,28 @@ time. 98.css showed the way.</pre>
             <div class="w95-statusfield is-fit">Ln 1, Col 1</div>
           </div>
         </fieldset>
+      </div>
+
+      <div class="w95-tabpanel stack" role="tabpanel" id="tab-appearance" hidden>
+        <div class="w95-panel scheme-preview" data-scheme-preview>
+          <section class="w95-window">
+            <div class="w95-titlebar"><span class="w95-title">Active Window</span>
+              <div class="w95-controls"><button aria-label="Close" tabindex="-1"></button></div></div>
+            <div class="w95-body"><p>Window Text</p>
+              <div class="w95-btn-row" style="margin-top:6px"><button class="is-default" tabindex="-1">OK</button><button disabled tabindex="-1">Disabled</button></div></div>
+          </section>
+        </div>
+        <div class="w95-field">
+          <label for="f-scheme">Scheme:</label>
+          <select id="f-scheme">
+            <option value="standard">Windows Standard</option>
+            <option value="desert">Desert</option>
+            <option value="rainy-day">Rainy Day</option>
+            <option value="eggplant">Eggplant</option>
+            <option value="high-contrast">High Contrast Black</option>
+          </select>
+        </div>
+        <p>Applies to the whole desktop. Set <code>data-scheme</code> on any element to theme just that part.</p>
       </div>
 
       <div class="w95-btn-row is-end" style="padding-top:8px">
@@ -556,7 +610,15 @@ time. 98.css showed the way.</pre>
     <div class="w95-btn-row"><button class="is-default" data-action="close">Close</button><button disabled>Details &gt;&gt;</button></div>
   </section>
 
-  <section class="w95-window" id="msg-empty" data-icon="warning" data-w="360" data-h="auto" data-center hidden>
+  <section class="w95-window" id="msg-restart" data-icon="warning" data-w="360" data-h="auto" data-modal hidden>
+    <div class="w95-titlebar"><span class="w95-title">System Settings Change</span>
+      <div class="w95-controls"><button data-action="close" aria-label="Close"></button></div></div>
+    <div class="w95-msg"><span class="w95-ico-warning w95-ico-32"></span>
+      <p>You must restart your computer before the new settings will take effect.<br><br>Do you want to restart your computer now?</p></div>
+    <div class="w95-btn-row"><button class="is-default" data-action="shutdown">Yes</button><button data-action="close">No</button></div>
+  </section>
+
+  <section class="w95-window" id="msg-empty" data-icon="warning" data-w="360" data-h="auto" data-modal hidden>
     <div class="w95-titlebar"><span class="w95-title">Confirm Multiple File Delete</span>
       <div class="w95-controls"><button data-action="close" aria-label="Close"></button></div></div>
     <div class="w95-msg"><span class="w95-ico-recycle w95-ico-32"></span>
@@ -583,14 +645,29 @@ time. 98.css showed the way.</pre>
 <nav class="w95-startmenu" id="startmenu" aria-label="Start menu" hidden>
   <div class="w95-startmenu-band" aria-hidden="true"><span>win<b>95.css</b></span></div>
   <ul>
-    <li><button data-open="briefcase"><span class="w95-ico-briefcase"></span> My Briefcase</button></li>
-    <li><button data-open="readme"><span class="w95-ico-notepad"></span> Documents</button></li>
-    <li><button data-open="components"><span class="w95-ico-controls"></span> Settings</button></li>
-    <li><button data-open="internet"><span class="w95-ico-globe"></span> The Internet</button></li>
-    <li><button data-open="font"><span class="w95-ico-notepad"></span> Fonts</button></li>
-    <li><button data-open="about"><span class="w95-ico-info"></span> Help</button></li>
+    <li><button aria-haspopup="menu" aria-controls="sm-programs" aria-expanded="false"><span class="w95-ico-folder"></span> <span class="w95-key">P</span>rograms</button>
+      <ul class="w95-menu" id="sm-programs" hidden>
+        <li><button data-open="readme"><span class="w95-ico-notepad"></span> Notepad</button></li>
+        <li><button data-open="internet"><span class="w95-ico-globe"></span> The Internet</button></li>
+        <li><button data-open="briefcase"><span class="w95-ico-briefcase"></span> My Briefcase</button></li>
+        <li><button data-open="recycle"><span class="w95-ico-recycle"></span> Recycle Bin</button></li>
+      </ul>
+    </li>
+    <li><button aria-haspopup="menu" aria-controls="sm-docs" aria-expanded="false"><span class="w95-ico-doc"></span> <span class="w95-key">D</span>ocuments</button>
+      <ul class="w95-menu" id="sm-docs" hidden>
+        <li><button data-open="readme"><span class="w95-ico-notepad"></span> README.TXT</button></li>
+      </ul>
+    </li>
+    <li><button aria-haspopup="menu" aria-controls="sm-settings" aria-expanded="false"><span class="w95-ico-controls"></span> <span class="w95-key">S</span>ettings</button>
+      <ul class="w95-menu" id="sm-settings" hidden>
+        <li><button data-open="components"><span class="w95-ico-controls"></span> Control Panel</button></li>
+        <li><button id="sm-appearance"><span class="w95-ico-paint"></span> Appearance</button></li>
+        <li><button data-open="font"><span class="w95-ico-notepad"></span> Fonts</button></li>
+      </ul>
+    </li>
+    <li><button data-open="about"><span class="w95-ico-info"></span> <span class="w95-key">H</span>elp</button></li>
     <li class="w95-sep" role="separator"></li>
-    <li><button data-action="shutdown"><span class="w95-ico-computer"></span> Shut Down...</button></li>
+    <li><button data-action="shutdown"><span class="w95-ico-computer"></span> Sh<span class="w95-key">u</span>t Down...</button></li>
   </ul>
 </nav>
 
@@ -659,6 +736,32 @@ time. 98.css showed the way.</pre>
     document.getElementById('copy-setup').addEventListener('click', () => {
       const code = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/win95.css/dist/win95.css">\n<script src="https://cdn.jsdelivr.net/npm/win95.css/dist/win95.js" defer><\/script>';
       navigator.clipboard?.writeText(code).catch(() => {});
+    });
+
+    // Right-click desktop menu
+    const icons = document.querySelector('.w95-icons');
+    const original = [...icons.children];
+    document.querySelectorAll('[data-arrange]').forEach((b) => b.addEventListener('click', () => {
+      const how = b.dataset.arrange;
+      const list = [...original];
+      if (how === 'name') list.sort((a, c) => a.textContent.trim().localeCompare(c.textContent.trim()));
+      if (how === 'type') list.sort((a, c) => a.querySelector('span').className.localeCompare(c.querySelector('span').className));
+      icons.append(...list);
+    }));
+    const openAppearance = () => {
+      W95.open('components');
+      document.getElementById('t-appearance').click();
+    };
+    document.getElementById('desk-props').addEventListener('click', openAppearance);
+    document.getElementById('sm-appearance').addEventListener('click', openAppearance);
+
+    // Colour schemes, remembered per visitor
+    const schemeSelect = document.getElementById('f-scheme');
+    try { const saved = localStorage.getItem('w95-scheme'); if (saved) W95.scheme(saved); } catch {}
+    schemeSelect.value = W95.scheme();
+    schemeSelect.addEventListener('change', () => {
+      W95.scheme(schemeSelect.value);
+      try { localStorage.setItem('w95-scheme', schemeSelect.value); } catch {}
     });
 
     const status = document.getElementById('ie-status');

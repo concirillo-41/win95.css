@@ -37,6 +37,12 @@
   /* Metrics */
   --w95-taskbar-h: 28px;
 
+  color-scheme: light;
+}
+
+/* Composite tokens are re-declared wherever colours can change, so a scheme set on any
+   element (or the .w95 root) recomputes the bevels from its own colours. */
+:root, .w95, [data-scheme] {
   /* Bevels: the whole look lives in these four lines */
   --w95-raised: inset -1px -1px var(--w95-dkshadow), inset 1px 1px var(--w95-hilight),
     inset -2px -2px var(--w95-shadow), inset 2px 2px var(--w95-light);
@@ -49,8 +55,38 @@
   --w95-shallow: inset -1px -1px var(--w95-hilight), inset 1px 1px var(--w95-shadow);
   --w95-dither: conic-gradient(var(--w95-hilight) 25%, var(--w95-face) 0 50%, var(--w95-hilight) 0 75%, var(--w95-face) 0);
 
-  color-scheme: light;
 }
+
+/* ---------- Colour schemes: <html data-scheme="desert"> or on any container ---------- */
+
+[data-scheme="desert"] {
+  --w95-desktop: #a08a5c; --w95-face: #d5ccbb; --w95-light: #e8e1d3; --w95-shadow: #a39882;
+  --w95-title: #008080; --w95-title-inactive: #a39882; --w95-title-inactive-text: #d5ccbb; --w95-select: #008080;
+}
+[data-scheme="rainy-day"] {
+  --w95-desktop: #4a6787; --w95-face: #b7c3cf; --w95-light: #d3dbe3; --w95-shadow: #6f8296;
+  --w95-title: #4a5f7a; --w95-title-inactive: #7d8b99; --w95-title-inactive-text: #b7c3cf; --w95-select: #4a5f7a;
+}
+[data-scheme="eggplant"] {
+  --w95-desktop: #5c3c5c; --w95-face: #9bb5ad; --w95-light: #c3d5cf; --w95-shadow: #5f7a72;
+  --w95-title: #5c2e5c; --w95-title-inactive: #7f6d7f; --w95-title-inactive-text: #9bb5ad; --w95-select: #5c2e5c;
+}
+/* High Contrast Black: white edges on black, purple selection, green disabled text */
+[data-scheme="high-contrast"] {
+  --w95-desktop: #000000; --w95-face: #000000; --w95-light: #000000; --w95-hilight: #ffffff;
+  --w95-shadow: #808080; --w95-dkshadow: #ffffff; --w95-window: #000000; --w95-text: #ffffff;
+  --w95-gray-text: #00ff00; --w95-title: #800080; --w95-title-text: #ffffff; --w95-title-inactive: #008000;
+  --w95-title-inactive-text: #ffffff; --w95-select: #800080; --w95-select-text: #ffffff; --w95-tooltip: #000000;
+  --w95-link: #ffff00; --w95-visited: #00ffff;
+  --w95-g-close: var(--w95-g-close-hc); --w95-g-max: var(--w95-g-max-hc); --w95-g-min: var(--w95-g-min-hc);
+  --w95-g-restore: var(--w95-g-restore-hc); --w95-g-down: var(--w95-g-down-hc); --w95-g-up: var(--w95-g-up-hc);
+  --w95-g-left: var(--w95-g-left-hc); --w95-g-right: var(--w95-g-right-hc); --w95-g-check: var(--w95-g-check-hc);
+  --w95-g-radio: var(--w95-g-radio-hc); --w95-g-dot: var(--w95-g-dot-hc);
+  color-scheme: dark;
+}
+[data-scheme] { color: var(--w95-text); }
+[data-scheme="high-contrast"] :where(button, .w95-btn):disabled { text-shadow: none; }
+[data-scheme="high-contrast"] :is(.is-active, [aria-pressed="true"]) { background-image: none !important; }
 
 @media (pointer: coarse), (max-width: 640px) {
   :root { --w95-size: 13px; --w95-taskbar-h: 36px; }
@@ -119,7 +155,6 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   text-decoration: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -142,6 +177,9 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   text-shadow: 1px 1px 0 var(--w95-hilight);
   cursor: default;
 }
+/* Icons get a margin, not a flex gap: a gap would also split words around <span class="w95-key"> */
+.w95 :where(button, .w95-btn) > [class*="w95-ico-"] { margin-right: 4px; }
+.w95 .w95-btn-icon > [class*="w95-ico-"] { margin-right: 0; }
 .w95-btn-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
 .w95-btn-row.is-end { justify-content: flex-end; }
 .w95 .w95-btn-icon { min-width: 0; padding: 0 4px; }
@@ -152,6 +190,7 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   /* Re-read the type tokens so a window can override them locally */
   font-family: var(--w95-font);
   font-size: var(--w95-size);
+  color: var(--w95-text);
   background: var(--w95-face);
   box-shadow: var(--w95-window-edge);
   padding: 3px;
@@ -243,8 +282,8 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 6px;
 }
+.w95 .w95-menu :is(button, a) > [class*="w95-ico-"] { margin-right: 6px; }
 .w95 .w95-menu button:hover, .w95 .w95-menu button:focus-visible,
 .w95 .w95-menu a:hover, .w95 .w95-menu a:focus-visible { background: var(--w95-select); color: var(--w95-select-text); outline: none; }
 .w95 .w95-menu button:active { padding: 0 20px; box-shadow: none; }
@@ -260,6 +299,23 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
 .w95 .w95-menu button { position: relative; }
 .w95 .w95-menu button:hover[aria-checked="true"]::before { filter: invert(1); }
 .w95-menu kbd { margin-left: auto; padding-left: 24px; font-family: inherit; }
+.w95-menu li { position: relative; }
+/* Cascading submenus: a nested .w95-menu opens beside its item */
+.w95-menu .w95-menu, .w95-startmenu .w95-menu { top: -3px; left: calc(100% - 3px); }
+.w95 :is(.w95-menu, .w95-startmenu) [aria-haspopup="menu"]::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 4px;
+  height: 7px;
+  margin-top: -3px;
+  background: var(--w95-g-right) no-repeat;
+}
+.w95 :is(.w95-menu, .w95-startmenu) [aria-haspopup="menu"]:is(:hover, :focus-visible, [aria-expanded="true"])::after { filter: invert(1); }
+.w95 :is(.w95-menu, .w95-startmenu) [aria-haspopup="menu"][aria-expanded="true"] { background: var(--w95-select); color: var(--w95-select-text); }
+/* Right-click menus are positioned by win95.js */
+.w95-menu.is-context { position: fixed; z-index: 9500; }
 .w95-menu .w95-sep, .w95-menu hr { height: 2px; margin: 3px 1px; box-shadow: var(--w95-shallow); border: 0; list-style: none; }
 
 /* Status bar */
@@ -554,7 +610,8 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   padding: 1px 3px 0 5px;
 }
 .w95 .w95-toolbar [aria-pressed="true"] { background-image: var(--w95-dither); background-size: 2px 2px; }
-.w95 .w95-toolbar.is-big :is(button, .w95-btn) { height: 38px; min-width: 52px; flex-direction: column; gap: 1px; font-size: 11px; }
+.w95 .w95-toolbar.is-big :is(button, .w95-btn) > [class*="w95-ico-"] { margin: 0 0 1px; }
+.w95 .w95-toolbar.is-big :is(button, .w95-btn) { height: 38px; min-width: 52px; flex-direction: column; font-size: 11px; }
 .w95-toolbar .w95-sep { width: 2px; align-self: stretch; margin: 2px 3px; box-shadow: var(--w95-shallow); }
 .w95 .w95-toolbar select { min-height: 21px; }
 
@@ -582,7 +639,7 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   cursor: default;
   -webkit-tap-highlight-color: transparent;
 }
-.w95-iconview > * > [class*="w95-ico-"] { width: 32px; height: 32px; }
+.w95-iconview > * > [class*="w95-ico-"] { width: 32px; height: 32px; margin: 0; }
 .w95-iconview > * > span:last-child { padding: 0 2px; line-height: 1.25; }
 .w95-iconview > [aria-selected="true"] > span:last-child { background: var(--w95-select); color: var(--w95-select-text); outline: 1px dotted var(--w95-tooltip); }
 .w95-iconview > [aria-selected="true"] > [class*="w95-ico-"] { filter: sepia(1) saturate(6) hue-rotate(190deg) brightness(0.55); }
@@ -677,7 +734,7 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   cursor: default;
   -webkit-tap-highlight-color: transparent;
 }
-.w95-desk-icon > [class*="w95-ico-"] { width: 32px; height: 32px; }
+.w95-desk-icon > [class*="w95-ico-"] { width: 32px; height: 32px; margin: 0; }
 .w95-desk-icon > span:last-child { padding: 0 2px; line-height: 1.25; overflow-wrap: anywhere; }
 .w95-desk-icon[aria-selected="true"] > span:last-child { background: var(--w95-select); outline: 1px dotted var(--w95-tooltip); }
 .w95-desk-icon[aria-selected="true"] > [class*="w95-ico-"] { filter: sepia(1) saturate(6) hue-rotate(190deg) brightness(0.55); }
@@ -703,7 +760,6 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   min-height: 0;
   padding: 0 5px 0 3px;
   font-weight: 700;
-  gap: 3px;
   flex: none;
 }
 .w95 .w95-start[aria-expanded="true"] { box-shadow: var(--w95-pressed); padding: 1px 4px 0 4px; }
@@ -757,13 +813,12 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   flex: none;
 }
 .w95-startmenu-band b { color: var(--w95-hilight); }
-.w95-startmenu ul { list-style: none; margin: 0; padding: 0; flex: 1; }
-.w95 .w95-startmenu button, .w95 .w95-startmenu a {
+.w95-startmenu > ul { list-style: none; margin: 0; padding: 0; flex: 1; }
+.w95 .w95-startmenu > ul > li > :is(button, a) {
   all: unset;
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 8px;
   width: 100%;
   min-height: 32px;
   padding: 0 24px 0 6px;
@@ -771,14 +826,26 @@ html:has(.w95-desktop) { background: var(--w95-desktop); height: 100%; overflow:
   color: var(--w95-text);
   white-space: nowrap;
 }
-.w95-startmenu [class*="w95-ico-"] { width: 24px; height: 24px; }
-.w95 .w95-startmenu button:hover, .w95 .w95-startmenu button:focus-visible,
-.w95 .w95-startmenu a:hover, .w95 .w95-startmenu a:focus-visible { background: var(--w95-select); color: var(--w95-select-text); }
-.w95-startmenu .w95-sep { height: 2px; margin: 2px 2px; box-shadow: var(--w95-shallow); }
+.w95-startmenu > ul > li > * > [class*="w95-ico-"] { width: 24px; height: 24px; margin-right: 8px; }
+.w95 .w95-startmenu > ul > li > :is(button, a):is(:hover, :focus-visible) { background: var(--w95-select); color: var(--w95-select-text); }
+.w95-startmenu > ul > li { position: relative; }
+.w95-startmenu .w95-menu [class*="w95-ico-"] { width: 16px; height: 16px; }
+.w95 .w95-startmenu .w95-menu :is(button, a) { padding-left: 8px; }
+.w95-startmenu > ul > .w95-sep { height: 2px; margin: 2px 2px; box-shadow: var(--w95-shallow); }
 
 @media (prefers-reduced-motion: no-preference) {
-  .w95-startmenu:not([hidden]) { animation: w95-slide 0.12s steps(4) both; }
+  .w95-startmenu:not([hidden]) { animation: w95-slide 0.12s steps(4) backwards; }
   @keyframes w95-slide { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+}
+
+/* Modal dialogs: the backdrop is invisible, as in Windows; it only catches clicks */
+.w95-modal-backdrop { position: absolute; inset: 0; background: transparent; }
+@media (prefers-reduced-motion: no-preference) {
+  .w95-window.is-flashing .w95-titlebar { animation: w95-flash 0.48s steps(1) 1; }
+  @keyframes w95-flash {
+    0%, 33%, 66% { background: var(--w95-title-inactive); color: var(--w95-title-inactive-text); }
+    16%, 50%, 83% { background: var(--w95-title); color: var(--w95-title-text); }
+  }
 }
 
 /* "It's now safe to turn off your computer." */

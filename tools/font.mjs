@@ -117,7 +117,7 @@ export const GLYPHS = {
   '’': '##|.#|#.',
   '“': '.#..#|#..#.|##.##',
   '”': '##.##|.#..#|#..#.',
-  '…': '|||||||#.#.#',
+  '…': '|||||||#..#..#',
   '©': '.#####.|#.....#|#.###.#|#.#...#|#.#...#|#.###.#|#.....#|.#####.',
   '•': '|||.##.|####|####|.##.',
   '±': '|..#..|..#..|#####|..#..|..#..||#####',
@@ -230,13 +230,20 @@ export async function buildFont({ bold = false } = {}) {
     designerURL: 'https://concirillo.com',
     license: 'MIT License',
     version: '1.0',
+    // Fixed date (Windows 95 launch day) so every build is byte-identical.
+    createdTimestamp: Date.UTC(1995, 7, 24) / 1000,
     glyphs,
   });
   font.tables.os2.usWeightClass = bold ? 700 : 400;
   font.tables.os2.fsSelection = bold ? 0x20 : 0x40;
   font.tables.os2.sxHeight = 6 * PX;
   font.tables.os2.sCapHeight = 8 * PX;
-  const otf = Buffer.from(font.toArrayBuffer());
+  // opentype.js stamps the head table's "modified" date with the clock; pin it too.
+  const LAUNCH = Date.UTC(1995, 7, 24);
+  const getTime = Date.prototype.getTime;
+  Date.prototype.getTime = function () { return LAUNCH; };
+  let otf;
+  try { otf = Buffer.from(font.toArrayBuffer()); } finally { Date.prototype.getTime = getTime; }
   return Buffer.from(await compress(otf));
 }
 

@@ -6,7 +6,10 @@
  *   [data-open="readme"]     opens/focuses that window (desktop icons: double-click; touch: tap)
  *   [data-action="close|minimize|maximize"] inside a window
  *   [data-action="shutdown"] shows the "safe to turn off" screen
+ *   [data-modal] on a window blocks the desktop until it closes
+ *   [data-contextmenu="menu-id"] opens that .w95-menu on right-click, long-press or Shift+F10
  *   .w95-menubar > li > button[aria-controls]   drop-down menus
+ *   button[aria-haspopup="menu"][aria-controls] inside a menu   cascading submenu
  *   [role="tablist"] > [role="tab"][aria-controls] tabs
  *   .w95-clock               taskbar clock
  *   #readme in the URL opens that window on load.
@@ -14,13 +17,17 @@
 (() => {
   const PHONE = matchMedia('(max-width: 640px)');
   const COARSE = matchMedia('(pointer: coarse)');
+  const SCHEMES = ['standard', 'desert', 'rainy-day', 'eggplant', 'high-contrast'];
   let desktop, tasks, startBtn, startMenu;
   let z = 10;
   let cascade = 0;
+  const modals = [];
 
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
   const winOf = (el) => el.closest('.w95-window');
+  const FOCUSABLE = 'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])';
+  const visibleIn = (el) => $$(FOCUSABLE, el).filter((f) => f.offsetParent !== null);
 
   /* ---------- Windows ---------- */
 
@@ -33,7 +40,7 @@
     const h = Math.min(auto ? win.offsetHeight : +win.dataset.h || 300, H - 8);
     if (!auto || win.offsetHeight > H - 8) win.style.height = h + 'px';
     let x, y;
-    if (win.hasAttribute('data-center')) {
+    if (win.hasAttribute('data-center') || win.hasAttribute('data-modal')) {
       x = (W - w) / 2;
       y = Math.max(4, (H - h) / 2.6);
     } else {
@@ -47,26 +54,34 @@
   }
 
   function open(id) {
-    const win = document.getElementById(id);
+    const win = typeof id === 'string' ? document.getElementById(id) : id;
     if (!win || !win.classList.contains('w95-window')) return;
+    const top = topModal();
+    if (top && top !== win && !win.hasAttribute('data-modal')) return flash(top);
     closeMenus();
+    const wasHidden = win.hidden;
     win.hidden = false;
     if (!('placed' in win.dataset)) place(win);
     delete win.dataset.minimized;
     ensureTask(win);
+    if (win.hasAttribute('data-modal') && wasHidden) openModal(win);
     focus(win);
+    if (win.hasAttribute('data-modal')) (win.querySelector('.is-default') || visibleIn(win)[0])?.focus();
     win.dispatchEvent(new CustomEvent('w95:open', { bubbles: true }));
   }
 
   function close(win) {
+    if (!win || win.hidden) return;
     win.hidden = true;
     delete win.dataset.minimized;
     taskFor(win)?.remove();
+    closeModal(win);
     win.dispatchEvent(new CustomEvent('w95:close', { bubbles: true }));
     focusTop();
   }
 
   function minimize(win) {
+    if (win.hasAttribute('data-modal')) return flash(win);
     win.hidden = true;
     win.dataset.minimized = '';
     focusTop();
@@ -90,6 +105,40 @@
     else $$('button', tasks).forEach((b) => b.classList.remove('is-active'));
   }
 
+  /* ---------- Modal dialogs ---------- */
+
+  const topModal = () => modals[modals.length - 1]?.win;
+
+  function openModal(win) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'w95-modal-backdrop';
+    backdrop.style.zIndex = ++z;
+    backdrop.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      flash(win);
+    });
+    desktop.append(backdrop);
+    modals.push({ win, backdrop, returnTo: document.activeElement });
+  }
+
+  function closeModal(win) {
+    const i = modals.findIndex((m) => m.win === win);
+    if (i < 0) return;
+    const [m] = modals.splice(i, 1);
+    m.backdrop.remove();
+    if (m.returnTo && document.contains(m.returnTo)) m.returnTo.focus({ preventScroll: true });
+  }
+
+  // Clicking outside a modal dialog flashes its title bar, the way Windows refuses.
+  function flash(win) {
+    win.classList.remove('is-flashing');
+    void win.offsetWidth;
+    win.classList.add('is-flashing');
+    setTimeout(() => win.classList.remove('is-flashing'), 600);
+    (win.querySelector('.is-default') || visibleIn(win)[0])?.focus();
+  }
+
   /* ---------- Taskbar ---------- */
 
   const taskFor = (win) => $(`button[data-for="${win.id}"]`, tasks);
@@ -104,6 +153,8 @@
     b.innerHTML = `<span class="w95-ico-${win.dataset.icon || 'folder'}"></span><span></span>`;
     b.lastChild.textContent = title;
     b.addEventListener('click', () => {
+      const modal = topModal();
+      if (modal && modal !== win) return flash(modal);
       const active = b.classList.contains('is-active') && !win.hidden;
       if (active) minimize(win);
       else open(win.id);
@@ -160,12 +211,23 @@
 
   /* ---------- Menus ---------- */
 
+  const subOf = (btn) => document.getElementById(btn.getAttribute('aria-controls'));
+
+  function collapse(btn) {
+    if (btn.getAttribute('aria-expanded') !== 'true') return;
+    btn.setAttribute('aria-expanded', 'false');
+    const menu = subOf(btn);
+    if (!menu) return;
+    $$('[aria-haspopup="menu"][aria-expanded="true"]', menu).forEach(collapse);
+    menu.hidden = true;
+  }
+
   function closeMenus(except) {
-    $$('.w95-menubar [aria-expanded="true"]').forEach((b) => {
-      if (b === except) return;
-      b.setAttribute('aria-expanded', 'false');
-      document.getElementById(b.getAttribute('aria-controls')).hidden = true;
+    $$('.w95-menubar > li > button[aria-expanded="true"]').forEach((b) => b !== except && collapse(b));
+    $$('.w95-menu [aria-haspopup="menu"][aria-expanded="true"], .w95-startmenu [aria-haspopup="menu"][aria-expanded="true"]').forEach((b) => {
+      if (!except || !subOf(b)?.contains(except)) collapse(b);
     });
+    $$('.w95-menu.is-context:not([hidden])').forEach((m) => (m.hidden = true));
     if (except !== startBtn && startBtn?.getAttribute('aria-expanded') === 'true') {
       startBtn.setAttribute('aria-expanded', 'false');
       startMenu.hidden = true;
@@ -173,13 +235,52 @@
   }
 
   function toggleMenu(btn, force) {
-    const menu = document.getElementById(btn.getAttribute('aria-controls'));
+    const menu = subOf(btn);
     const show = force ?? btn.getAttribute('aria-expanded') !== 'true';
     closeMenus(btn);
     btn.setAttribute('aria-expanded', String(show));
     menu.hidden = !show;
-    if (show && btn !== startBtn) $('button:not(:disabled), a', menu)?.focus({ preventScroll: true });
+    if (show && btn !== startBtn) firstItem(menu)?.focus({ preventScroll: true });
   }
+
+  const itemsOf = (list) => $$(':scope > li > :is(button:not(:disabled), a)', list);
+  const firstItem = (list) => itemsOf(list)[0];
+
+  function openSub(btn, focusFirst) {
+    const list = btn.closest('ul');
+    $$(':scope > li > [aria-haspopup="menu"][aria-expanded="true"]', list).forEach((b) => b !== btn && collapse(b));
+    const menu = subOf(btn);
+    if (!menu) return;
+    btn.setAttribute('aria-expanded', 'true');
+    menu.hidden = false;
+    // Flip to the left if the submenu would run off the screen.
+    menu.style.left = menu.style.right = '';
+    if (menu.getBoundingClientRect().right > innerWidth) {
+      menu.style.left = 'auto';
+      menu.style.right = 'calc(100% - 3px)';
+    }
+    if (focusFirst) firstItem(menu)?.focus({ preventScroll: true });
+  }
+
+  /* ---------- Right-click menus ---------- */
+
+  function openContext(menu, x, y, target) {
+    if (typeof menu === 'string') menu = document.getElementById(menu);
+    if (!menu) return;
+    if (topModal() && !(target && winOf(target) === topModal())) return flash(topModal());
+    closeMenus();
+    const host = target?.closest('.w95') || $('.w95') || document.body;
+    if (menu.parentElement !== host) host.append(menu);
+    menu.classList.add('is-context');
+    menu.hidden = false;
+    menu.style.left = Math.max(0, Math.min(x, innerWidth - menu.offsetWidth - 2)) + 'px';
+    menu.style.top = Math.max(0, Math.min(y, innerHeight - menu.offsetHeight - 2)) + 'px';
+    menu.dispatchEvent(new CustomEvent('w95:contextmenu', { bubbles: true, detail: { target } }));
+    firstItem(menu)?.focus({ preventScroll: true });
+  }
+
+  let pressTimer = null;
+  let suppressClick = false;
 
   /* ---------- Tabs ---------- */
 
@@ -196,7 +297,20 @@
   /* ---------- Desktop icons ---------- */
 
   function selectIcon(icon) {
-    $$('.w95-desk-icon').forEach((i) => i.setAttribute('aria-selected', String(i === icon)));
+    const scope = icon?.parentElement || document;
+    $$('.w95-desk-icon', scope).forEach((i) => i.setAttribute('aria-selected', String(i === icon)));
+    if (!icon) $$('.w95-desk-icon').forEach((i) => i.setAttribute('aria-selected', 'false'));
+  }
+
+  /* ---------- Colour schemes ---------- */
+
+  function scheme(name) {
+    const root = document.documentElement;
+    if (name === undefined) return root.dataset.scheme || 'standard';
+    if (!name || name === 'standard') delete root.dataset.scheme;
+    else root.dataset.scheme = name;
+    document.dispatchEvent(new CustomEvent('w95:scheme', { detail: { scheme: name || 'standard' } }));
+    return name || 'standard';
   }
 
   /* ---------- Clock ---------- */
@@ -221,7 +335,7 @@
     const restart = () => s.remove();
     s.addEventListener('click', restart);
     s.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && restart());
-    document.body.append(s);
+    ($('.w95') || document.body).append(s);
     s.focus();
   }
 
@@ -231,17 +345,60 @@
     desktop = $('.w95-desktop');
     tasks = $('.w95-tasks');
     startBtn = $('.w95-start');
-    startMenu = startBtn && document.getElementById(startBtn.getAttribute('aria-controls'));
+    startMenu = startBtn && subOf(startBtn);
     if (!desktop || !tasks) return;
 
     document.addEventListener('pointerdown', (e) => {
-      const win = winOf(e.target);
-      if (win && desktop.contains(win)) focus(win);
+      const win = e.target.closest('.w95-desktop > .w95-window');
+      if (win) focus(win);
       if (!e.target.closest('.w95-menu, .w95-menubar, .w95-startmenu, .w95-start')) closeMenus();
       if (!e.target.closest('.w95-desk-icon') && e.target.closest('.w95-desktop') && !win) selectIcon(null);
       drag(e);
       resize(e);
+
+      // Long-press opens the right-click menu on touch screens.
+      const ctx = e.pointerType === 'touch' && e.target.closest('[data-contextmenu]');
+      if (ctx) {
+        const sx = e.clientX, sy = e.clientY;
+        clearTimeout(pressTimer);
+        pressTimer = setTimeout(() => {
+          suppressClick = true;
+          const icon = e.target.closest('.w95-desk-icon');
+          if (icon) selectIcon(icon);
+          openContext(ctx.dataset.contextmenu, sx, sy, e.target);
+        }, 550);
+        const cancel = (ev) => {
+          if (ev.type === 'pointermove' && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 8) return;
+          clearTimeout(pressTimer);
+          removeEventListener('pointermove', cancel);
+          removeEventListener('pointerup', cancel);
+          removeEventListener('pointercancel', cancel);
+        };
+        addEventListener('pointermove', cancel);
+        addEventListener('pointerup', cancel);
+        addEventListener('pointercancel', cancel);
+      }
     });
+
+    document.addEventListener('contextmenu', (e) => {
+      const ctx = e.target.closest('[data-contextmenu]');
+      if (!ctx) return;
+      e.preventDefault();
+      if (suppressClick) return;
+      const icon = e.target.closest('.w95-desk-icon');
+      if (icon) selectIcon(icon);
+      openContext(ctx.dataset.contextmenu, e.clientX, e.clientY, e.target);
+    });
+
+    // The finger lifting after a long-press must not also click what is under it.
+    document.addEventListener('click', (e) => {
+      if (!suppressClick) return;
+      suppressClick = false;
+      if (!e.target.closest('.w95-menu.is-context')) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    }, true);
 
     document.addEventListener('click', (e) => {
       const t = e.target;
@@ -254,6 +411,13 @@
         return;
       }
 
+      const sub = t.closest('.w95-menu [aria-haspopup="menu"][aria-controls], .w95-startmenu [aria-haspopup="menu"][aria-controls]');
+      if (sub) {
+        if (sub.getAttribute('aria-expanded') === 'true' && e.detail !== 0) collapse(sub);
+        else openSub(sub, e.detail === 0);
+        return;
+      }
+
       const action = t.closest('[data-action]');
       if (action) {
         const win = winOf(action);
@@ -262,15 +426,17 @@
         else if (a === 'minimize' && win) minimize(win);
         else if (a === 'maximize' && win) toggleMax(win);
         else if (a === 'shutdown') shutdown();
-        if (action.closest('.w95-menu')) closeMenus();
       }
 
       const opener = t.closest('[data-open]');
       if (opener) {
         e.preventDefault();
         open(opener.dataset.open);
-        if (opener.closest('.w95-menu, .w95-startmenu')) closeMenus();
       }
+
+      // Choosing any item closes the menus, as in Windows.
+      const item = t.closest('.w95-menu :is(button, a), .w95-startmenu > ul > li > :is(button, a)');
+      if (item && !item.disabled) closeMenus();
 
       const menuBtn = t.closest('.w95-menubar > li > button[aria-controls]');
       if (menuBtn) toggleMenu(menuBtn);
@@ -290,18 +456,47 @@
       }
     });
 
-    // Moving across an open menu bar switches menus, as in Windows.
     document.addEventListener('pointerover', (e) => {
+      // Moving across an open menu bar switches menus, as in Windows.
       const btn = e.target.closest('.w95-menubar > li > button[aria-controls]');
-      if (!btn || btn.getAttribute('aria-expanded') === 'true') return;
-      if ($('[aria-expanded="true"]', btn.closest('.w95-menubar'))) toggleMenu(btn, true);
+      if (btn && btn.getAttribute('aria-expanded') !== 'true' && $('[aria-expanded="true"]', btn.closest('.w95-menubar'))) {
+        toggleMenu(btn, true);
+        return;
+      }
+      // Hovering an item opens its submenu and closes its siblings'.
+      if (e.pointerType === 'touch') return;
+      const li = e.target.closest('.w95-menu > li, .w95-startmenu > ul > li');
+      if (!li) return;
+      const own = li.querySelector(':scope > [aria-haspopup="menu"]');
+      $$(':scope > li > [aria-haspopup="menu"][aria-expanded="true"]', li.parentElement).forEach((b) => b !== own && collapse(b));
+      if (own) openSub(own);
     });
 
     document.addEventListener('keydown', (e) => {
+      const modal = topModal();
       if (e.key === 'Escape') {
-        const wasOpen = $('.w95-menubar [aria-expanded="true"]') || startBtn?.getAttribute('aria-expanded') === 'true';
+        const wasOpen = $('.w95-menubar [aria-expanded="true"], .w95-menu.is-context:not([hidden])') || startBtn?.getAttribute('aria-expanded') === 'true';
         closeMenus();
         if (wasOpen) return;
+        if (modal) return close(modal);
+      }
+      // Keep Tab inside an open modal dialog.
+      if (e.key === 'Tab' && modal) {
+        const f = visibleIn(modal);
+        if (!f.length) return;
+        const i = f.indexOf(document.activeElement);
+        if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (!e.shiftKey && (i === f.length - 1 || i < 0)) { e.preventDefault(); f[0].focus(); }
+        return;
+      }
+      if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
+        const ctx = document.activeElement?.closest?.('[data-contextmenu]');
+        if (ctx) {
+          e.preventDefault();
+          const r = document.activeElement.getBoundingClientRect();
+          openContext(ctx.dataset.contextmenu, r.left + 8, r.top + r.height / 2, document.activeElement);
+          return;
+        }
       }
       const icon = e.target.closest?.('.w95-desk-icon');
       if (icon && e.key === 'Enter') {
@@ -315,12 +510,24 @@
         selectTab(next);
         next.focus();
       }
-      const item = e.target.closest?.('.w95-menu, .w95-startmenu');
-      if (item && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
-        e.preventDefault();
-        const all = $$('button:not(:disabled), a', item);
-        const i = all.indexOf(document.activeElement);
-        all[(i + (e.key === 'ArrowDown' ? 1 : all.length - 1)) % all.length]?.focus();
+      const list = e.target.closest?.('ul.w95-menu, .w95-startmenu > ul');
+      if (list) {
+        const items = itemsOf(list);
+        const i = items.indexOf(document.activeElement);
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          items[(i + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length]?.focus();
+        } else if (e.key === 'ArrowRight' && document.activeElement?.matches('[aria-haspopup="menu"]')) {
+          e.preventDefault();
+          openSub(document.activeElement, true);
+        } else if (e.key === 'ArrowLeft') {
+          const parent = list.closest('li')?.querySelector(':scope > [aria-haspopup="menu"]');
+          if (parent) {
+            e.preventDefault();
+            collapse(parent);
+            parent.focus();
+          }
+        }
       }
     });
 
@@ -328,6 +535,7 @@
     $$('.w95-desktop > .w95-window:not([hidden])').forEach((w) => {
       if (!('placed' in w.dataset)) place(w);
       ensureTask(w);
+      if (w.hasAttribute('data-modal')) openModal(w);
       focus(w);
     });
 
@@ -351,7 +559,16 @@
     setInterval(tick, 15000);
   }
 
-  window.W95 = { open, close: (id) => close(document.getElementById(id)), focus, shutdown };
+  window.W95 = {
+    open,
+    close: (id) => close(typeof id === 'string' ? document.getElementById(id) : id),
+    focus: (id) => focus(typeof id === 'string' ? document.getElementById(id) : id),
+    shutdown,
+    scheme,
+    schemes: SCHEMES,
+    contextMenu: (menu, x, y) => openContext(menu, x, y),
+    closeMenus: () => closeMenus(),
+  };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

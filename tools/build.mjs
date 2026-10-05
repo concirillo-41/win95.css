@@ -387,6 +387,9 @@ const core = readFileSync(join(root, 'src/win95.css'), 'utf8');
 const css = banner + '\n/* ---- fonts + icons (generated) ---- */\n' + assets + '\n' + core;
 writeFileSync(join(root, 'dist/win95.css'), css);
 writeFileSync(join(root, 'dist/win95.js'), `/*! win95.js v${pkg.version} | MIT License */\n` + readFileSync(join(root, 'src/win95.js'), 'utf8'));
+// Browser-tab icon for the demo, from the computer icon.
+const fav = decodeURIComponent(svg(ICONS.computer, 'favicon').slice('url("data:image/svg+xml,'.length, -2)).replace(/'/g, '"');
+writeFileSync(join(root, 'docs/img/favicon.svg'), fav);
 console.log(`dist/win95.css  ${(css.length / 1024).toFixed(1)} KB, ${Object.keys(ICONS).length} icons`);
 console.log('dist/win95.js');
 
